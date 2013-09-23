@@ -5,6 +5,8 @@ import glWrapper.VertexAttribute;
 
 import java.io.IOException;
 
+import algorithms.AvgSmoother;
+
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
 import meshes.WireframeMesh;
@@ -22,7 +24,7 @@ public class Assignment1 {
 
 	public static void main(String[] args) throws IOException{
 		//Load a wireframe mesh
-		WireframeMesh m = ObjReader.read("./objs/dragon.obj", true);
+		WireframeMesh m = ObjReader.read("./objs/bunny5k.obj", true);
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 		
 		//create a half-edge structure out of the wireframe description.
@@ -55,10 +57,27 @@ public class Assignment1 {
 		glMeshValence.configurePreferredShader("shaders/valence.vert", 
 				"shaders/default.frag");
 		
-		
 		MyDisplay disp = new MyDisplay();
-		disp.addToDisplay(glMeshDiffuse);
-		disp.addToDisplay(glMeshValence);
+		/*disp.addToDisplay(glMeshDiffuse);
+		disp.addToDisplay(glMeshValence);*/
+
+		GLHalfEdgeStructure glMeshUnsmoothed = new GLHalfEdgeStructure(hs);
+		glMeshUnsmoothed.configurePreferredShader("shaders/trimesh_flat.vert", 
+				"shaders/trimesh_flat.frag", 
+				"shaders/trimesh_flat.geom");
+		disp.addToDisplay(glMeshUnsmoothed);
+		AvgSmoother smoother = new AvgSmoother(hs);
+		for(int i = 0; i < 40; i++)
+		{
+			smoother.apply();
+		}
+		GLHalfEdgeStructure glMeshSmoothed = new GLHalfEdgeStructure(hs);
+		glMeshSmoothed.configurePreferredShader("shaders/trimesh_flat.vert", 
+				"shaders/trimesh_flat.frag", 
+				"shaders/trimesh_flat.geom");
+		disp.addToDisplay(glMeshSmoothed);
+		
+		
 		
 		
 		
