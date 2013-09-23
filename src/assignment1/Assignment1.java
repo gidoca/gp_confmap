@@ -2,12 +2,13 @@ package assignment1;
 
 import glWrapper.GLHalfEdgeStructure;
 import glWrapper.VertexAttribute;
+import helper.Iter;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import javax.vecmath.Vector3f;
 
+import meshes.Face;
 import meshes.HalfEdge;
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
@@ -79,8 +80,8 @@ public class Assignment1 {
 
 		
 		MyDisplay disp = new MyDisplay();
-		/*disp.addToDisplay(glMeshDiffuse);
-		disp.addToDisplay(glMeshValence);*/
+		disp.addToDisplay(glMeshDiffuse);
+		disp.addToDisplay(glMeshValence);
 		disp.addToDisplay(glMeshNormal);
 
 		/*GLHalfEdgeStructure glMeshUnsmoothed = new GLHalfEdgeStructure(hs);
@@ -105,7 +106,7 @@ public class Assignment1 {
 		
 
 		
-		/*WireframeMesh oneNeighbourhood = ObjReader.read("./objs/oneNeighborhood.obj", true);
+		WireframeMesh oneNeighbourhood = ObjReader.read("./objs/oneNeighborhood.obj", true);
 		HalfEdgeStructure oneNeighbourhoodHS = new HalfEdgeStructure();
 		
 		try {
@@ -120,24 +121,18 @@ public class Assignment1 {
 		oneNeighbourhoodHS.enumerateVertices();
 		
 		Vertex center = oneNeighbourhoodHS.getVertices().get(0);
-		Iterator<HalfEdge> iteratorVE = center.iteratorVE();
-		for(HalfEdge he = null; iteratorVE.hasNext(); )
+		for(HalfEdge he: Iter.ate(center.iteratorVE()))
 		{
-			he = iteratorVE.next();
 			System.out.println(he);
 		}
-		Iterator<Vertex> iteratorVV = center.iteratorVV();
-		for(Vertex he = null; iteratorVV.hasNext(); )
+		for(Vertex v: Iter.ate(center.iteratorVV()))
 		{
-			he = iteratorVV.next();
-			System.out.println(he);
+			System.out.println(v);
 		}
-		Iterator<Face> iteratorVF = center.iteratorVF();
-		for(Face he = null; iteratorVF.hasNext(); )
+		for(Face f: Iter.ate(center.iteratorVF()))
 		{
-			he = iteratorVF.next();
-			System.out.println(he);
-		}*/
+			System.out.println(f);
+		}
 	}
 	
 

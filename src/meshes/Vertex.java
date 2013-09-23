@@ -1,5 +1,7 @@
 package meshes;
 
+import helper.Iter;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -39,10 +41,8 @@ public class Vertex extends HEElement{
 	
 	public int getValence() {
 		int out = 0;
-		Iterator<HalfEdge> edges = iteratorVE();
-		while(edges.hasNext())
+		for(@SuppressWarnings("unused") HalfEdge e: Iter.ate(iteratorVE()))
 		{
-			edges.next();
 			out++;
 		}
 		return out;
@@ -50,10 +50,8 @@ public class Vertex extends HEElement{
 	
 	public Vector3f getNormal() {
 		Vector3f normal = new Vector3f();
-		Iterator<HalfEdge> neighbourhood = this.iteratorVE();
-		while(neighbourhood.hasNext())
+		for(HalfEdge current: Iter.ate(iteratorVE()))
 		{
-			HalfEdge current = neighbourhood.next();
 			Vertex v1 = current.end();
 			Vertex v2 = current.getOpposite().getNext().end();
 			Vector3f e1 = new Vector3f(v1.getPos());
