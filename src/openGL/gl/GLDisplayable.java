@@ -168,6 +168,11 @@ public abstract class GLDisplayable {
 	public void setVAO(GLVertexArrayObject vertexArrayObject) {
 		this.vertexArrayObject = vertexArrayObject;
 	}
+	
+	public void configurePreferredShader(String vert_shader, String frag_shader)
+	{
+		configurePreferredShader(vert_shader, frag_shader, null);
+	}
 
 	/**
 	 * Set what glsl shaders should be used for rendering

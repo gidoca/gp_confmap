@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import javax.vecmath.Point3f;
-import javax.vecmath.Tuple3f;
 
 /**
  * Implementation of a vertex for the {@link HalfEdgeStructure}
@@ -37,13 +36,23 @@ public class Vertex extends HEElement{
 		return anEdge;
 	}
 	
+	public int getValence() {
+		int out = 0;
+		Iterator<HalfEdge> edges = iteratorVE();
+		while(edges.hasNext())
+		{
+			edges.next();
+			out++;
+		}
+		return out;
+	}
+	
 	/**
 	 * Get an iterator which iterates over the 1-neighbouhood
 	 * @return
 	 */
 	public Iterator<Vertex> iteratorVV(){
-		//Implement this...
-		return null;
+		return new IteratorVV(anEdge);
 	}
 	
 	/**
@@ -51,8 +60,7 @@ public class Vertex extends HEElement{
 	 * @return
 	 */
 	public Iterator<HalfEdge> iteratorVE(){
-		//Implement this...
-		return null;
+		return new IteratorVE(anEdge);
 	}
 	
 	/**
@@ -60,8 +68,7 @@ public class Vertex extends HEElement{
 	 * @return
 	 */
 	public Iterator<Face> iteratorVF(){
-		//Implement this.
-		return null;
+		return new IteratorVF(anEdge);
 	}
 	
 	
@@ -81,6 +88,75 @@ public class Vertex extends HEElement{
 			}
 		}
 		return isAdj;
+	}
+	
+	public class IteratorV {
+		protected HalfEdge initial, current;
+		
+		IteratorV(HalfEdge initial) {
+			this.initial = initial;
+			this.current = null;
+		}
+		
+		private HalfEdge getNextEdge()
+		{
+			return current == null ? initial : current.prev.opposite;
+		}
+		
+		protected HalfEdge updateEdge()
+		{
+			if(!hasNext())
+			{
+				throw new NoSuchElementException();
+			}
+			current = getNextEdge();
+			return current;			
+		}
+		
+		public boolean hasNext()
+		{
+			return current == null || (current.prev != null && getNextEdge() != initial);
+		}
+
+		public void remove() {
+			//we don't support removing through the iterator.
+			throw new UnsupportedOperationException();
+		}
+	}
+	
+	public class IteratorVE extends IteratorV implements Iterator<HalfEdge>
+	{
+		IteratorVE(HalfEdge initial) {
+			super(initial);
+		}
+
+		@Override
+		public HalfEdge next() {
+			return updateEdge();
+		}
+	}
+	
+	public class IteratorVV extends IteratorV implements Iterator<Vertex>
+	{
+		IteratorVV(HalfEdge initial) {
+			super(initial);
+		}
+		
+		public Vertex next() {
+			return updateEdge().incident_v;
+		}
+	}
+	
+	public class IteratorVF extends IteratorV implements Iterator<Face>
+	{
+
+		IteratorVF(HalfEdge initial) {
+			super(initial);
+		}
+		
+		public Face next() {
+			return updateEdge().incident_f;
+		}
 	}
 
 }

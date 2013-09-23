@@ -38,9 +38,7 @@ public class Face extends HEElement {
 	 * @return
 	 */
 	public Iterator<HalfEdge> iteratorFE(){
-		//Implement this
-
-		return null;
+		return new IteratorFE(anEdge);
 	}
 	
 	public String toString(){
@@ -57,6 +55,39 @@ public class Face extends HEElement {
 		
 	}
 	
+	public class IteratorE {
+		IteratorE(HalfEdge anEdge)
+		{
+			first = anEdge;
+			current = null;
+		}
+		protected HalfEdge first, current;
+
+		public boolean hasNext() {
+			return current == null || current.next != first;
+		}
+
+		public void remove() {
+			//we don't support removing through the iterator.
+			throw new UnsupportedOperationException();
+		}
+		
+		protected HalfEdge nextEdge()
+		{
+			//make sure eternal iteration is impossible
+			if(!hasNext()){
+				throw new NoSuchElementException();
+			}
+
+			//update what edge was returned last
+			current = (current == null?
+						first:
+						current.next);
+			return current;
+		}
+		
+	}
+	
 	
 
 	/**
@@ -64,42 +95,19 @@ public class Face extends HEElement {
 	 * @author Alf
 	 *
 	 */
-	public final class IteratorFV implements Iterator<Vertex> {
+	public final class IteratorFV extends IteratorE implements Iterator<Vertex> {
 		
 		
-		private HalfEdge first, actual;
-
 		public IteratorFV(HalfEdge anEdge) {
-			first = anEdge;
-			actual = null;
-		}
-
-		@Override
-		public boolean hasNext() {
-			return actual == null || actual.next != first;
+			super(anEdge);
 		}
 
 		@Override
 		public Vertex next() {
-			//make sure eternam iteration is impossible
-			if(!hasNext()){
-				throw new NoSuchElementException();
-			}
-
-			//update what edge was returned last
-			actual = (actual == null?
-						first:
-						actual.next);
-			return actual.incident_v;
+			return nextEdge().incident_v;
 		}
 
 		
-		@Override
-		public void remove() {
-			//we don't support removing through the iterator.
-			throw new UnsupportedOperationException();
-		}
-
 		/**
 		 * return the face this iterator iterates around
 		 * @return
@@ -109,4 +117,17 @@ public class Face extends HEElement {
 		}
 	}
 
+	public final class IteratorFE extends IteratorE implements Iterator<HalfEdge>
+	{
+		
+		public IteratorFE(HalfEdge initial) {
+			super(initial);
+		}
+
+		@Override
+		public HalfEdge next() {
+			return nextEdge();
+		}
+
+	}
 }
