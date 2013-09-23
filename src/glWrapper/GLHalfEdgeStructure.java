@@ -3,8 +3,11 @@ package glWrapper;
 import java.util.Iterator;
 
 import javax.media.opengl.GL;
+import javax.vecmath.Tuple3f;
 
 import meshes.Face;
+import meshes.HEData1d;
+import meshes.HEData3d;
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
 import openGL.gl.GLDisplayable;
@@ -15,16 +18,15 @@ public class GLHalfEdgeStructure extends GLDisplayable {
 
 	public GLHalfEdgeStructure(HalfEdgeStructure mesh) {
 		super(mesh.getVertices().size());
+		this.mesh = mesh;
 		
 		float[] vertices = new float[getNumberOfVertices() * 3];
 		int[] indices = new int[mesh.getFaces().size() * 3];
-		float[] valence = new float[getNumberOfVertices()];
 		
 		int i = 0;
 		for(Vertex v: mesh.getVertices())
 		{
 			int currentvalence = v.getValence();
-			valence[i / 3] = currentvalence;
 			if(currentvalence > maxValence) maxValence = currentvalence;
 			
 			vertices[i] = v.getPos().x;
@@ -47,8 +49,6 @@ public class GLHalfEdgeStructure extends GLDisplayable {
 		}
 		
 		this.addElement(vertices, Semantic.POSITION , 3);
-		this.addElement(vertices, Semantic.USERSPECIFIED , 3, "color");
-		this.addElement(valence, Semantic.USERSPECIFIED, 1, "valence");
 		this.addIndices(indices);
 	}
 
@@ -63,6 +63,53 @@ public class GLHalfEdgeStructure extends GLDisplayable {
 		glRenderContext.setUniform("maxvalence", maxValence);
 	}
 	
+	public void addElement(int n, String name, VertexAttribute attr)
+	{
+		float[] f = new float[n * getNumberOfVertices()];
+		int i = 0;
+		for(Vertex v: mesh.getVertices())
+		{
+			float[] current_f = attr.getAttribute(v);
+			assert(current_f.length == n);
+			for(int j = 0; j < n; j++)
+			{
+				f[i] = current_f[j];
+				i++;
+			}
+		}
+		addElement(f, Semantic.USERSPECIFIED, n, name);
+	}
+	
+	public void addElement(String name, HEData3d data)
+	{
+		float[] f = new float[getNumberOfVertices() * 3];
+		int i = 0;
+		for(Vertex v: mesh.getVertices())
+		{
+			Tuple3f current = data.get(v);
+			f[i] = current.x;
+			i++;
+			f[i] = current.y;
+			i++;
+			f[i] = current.z;
+			i++;
+		}
+	}
+	
+	public void addElement(String name, HEData1d data)
+	{
+		float[] f = new float[getNumberOfVertices()];
+		int i = 0;
+		for(Vertex v: mesh.getVertices())
+		{
+			Number current = data.get(v);
+			f[i] = current.floatValue();
+			i++;
+		}
+	}
+	
 	private int maxValence = 0;
+	
+	private HalfEdgeStructure mesh;
 
 }

@@ -1,20 +1,17 @@
 package assignment1;
 
 import glWrapper.GLHalfEdgeStructure;
+import glWrapper.VertexAttribute;
 
 import java.io.IOException;
-import java.util.Iterator;
 
-import openGL.MyDisplay;
-
-import meshes.Face;
-import meshes.HalfEdge;
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
 import meshes.WireframeMesh;
 import meshes.exception.DanglingTriangleException;
 import meshes.exception.MeshNotOrientedException;
 import meshes.reader.ObjReader;
+import openGL.MyDisplay;
 
 /**
  * 
@@ -49,6 +46,12 @@ public class Assignment1 {
 		
 		//... do something with it, display it ....
 		GLHalfEdgeStructure glMeshValence = new GLHalfEdgeStructure(hs);
+		glMeshValence.addElement(1, "valence", new VertexAttribute() {
+			@Override
+			public float[] getAttribute(Vertex v) {
+				return new float[]{v.getValence()};
+			}
+		});
 		glMeshValence.configurePreferredShader("shaders/valence.vert", 
 				"shaders/default.frag");
 		
@@ -59,7 +62,7 @@ public class Assignment1 {
 		
 		
 		
-		
+
 		
 		/*WireframeMesh oneNeighbourhood = ObjReader.read("./objs/oneNeighborhood.obj", true);
 		HalfEdgeStructure oneNeighbourhoodHS = new HalfEdgeStructure();
