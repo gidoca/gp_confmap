@@ -4,9 +4,11 @@ import glWrapper.GLHalfEdgeStructure;
 import glWrapper.VertexAttribute;
 
 import java.io.IOException;
+import java.util.Iterator;
 
-import algorithms.AvgSmoother;
+import javax.vecmath.Vector3f;
 
+import meshes.HalfEdge;
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
 import meshes.WireframeMesh;
@@ -57,11 +59,31 @@ public class Assignment1 {
 		glMeshValence.configurePreferredShader("shaders/valence.vert", 
 				"shaders/default.frag");
 		
+		GLHalfEdgeStructure glMeshNormal = new GLHalfEdgeStructure(hs);
+		glMeshNormal.addElement(3, "normal", new VertexAttribute() {
+			@Override
+			public float[] getAttribute(Vertex v) {
+				Vector3f normal = v.getNormal();
+				return new float[]{normal.x, normal.y, normal.z};
+			}
+		});
+		glMeshNormal.addElement(3, "color", new VertexAttribute() {
+			
+			@Override
+			public float[] getAttribute(Vertex v) {
+				return new float[]{.4f, .5f, .2f};
+			}
+		});
+		glMeshNormal.configurePreferredShader("shaders/normal.vert", 
+				"shaders/normal.frag");
+
+		
 		MyDisplay disp = new MyDisplay();
 		/*disp.addToDisplay(glMeshDiffuse);
 		disp.addToDisplay(glMeshValence);*/
+		disp.addToDisplay(glMeshNormal);
 
-		GLHalfEdgeStructure glMeshUnsmoothed = new GLHalfEdgeStructure(hs);
+		/*GLHalfEdgeStructure glMeshUnsmoothed = new GLHalfEdgeStructure(hs);
 		glMeshUnsmoothed.configurePreferredShader("shaders/trimesh_flat.vert", 
 				"shaders/trimesh_flat.frag", 
 				"shaders/trimesh_flat.geom");
@@ -75,7 +97,7 @@ public class Assignment1 {
 		glMeshSmoothed.configurePreferredShader("shaders/trimesh_flat.vert", 
 				"shaders/trimesh_flat.frag", 
 				"shaders/trimesh_flat.geom");
-		disp.addToDisplay(glMeshSmoothed);
+		disp.addToDisplay(glMeshSmoothed);*/
 		
 		
 		

@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import javax.vecmath.Point3f;
+import javax.vecmath.Vector3f;
 
 /**
  * Implementation of a vertex for the {@link HalfEdgeStructure}
@@ -45,6 +46,30 @@ public class Vertex extends HEElement{
 			out++;
 		}
 		return out;
+	}
+	
+	public Vector3f getNormal() {
+		Vector3f normal = new Vector3f();
+		Iterator<HalfEdge> neighbourhood = this.iteratorVE();
+		while(neighbourhood.hasNext())
+		{
+			HalfEdge current = neighbourhood.next();
+			Vertex v1 = current.end();
+			Vertex v2 = current.getOpposite().getNext().end();
+			Vector3f e1 = new Vector3f(v1.getPos());
+			e1.sub(this.getPos());
+			Vector3f e2 = new Vector3f(v2.getPos());
+			e2.sub(this.getPos());
+			float angle = e1.angle(e2);
+			Vector3f cp = new Vector3f();
+			cp.cross(e1, e2);
+			cp.normalize();
+			cp.scale(angle);
+			normal.add(cp);
+			
+		}
+		normal.normalize();
+		return normal;
 	}
 	
 	/**
