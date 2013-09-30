@@ -52,12 +52,9 @@ public class Vertex extends HEElement{
 		Vector3f normal = new Vector3f();
 		for(HalfEdge current: Iter.ate(iteratorVE()))
 		{
-			Vertex v1 = current.end();
-			Vertex v2 = current.getOpposite().getNext().end();
-			Vector3f e1 = new Vector3f(v1.getPos());
-			e1.sub(this.getPos());
-			Vector3f e2 = new Vector3f(v2.getPos());
-			e2.sub(this.getPos());
+			if(current.incident_f == null) continue;
+			Vector3f e1 = current.getVec();
+			Vector3f e2 = current.getNextOnEnd().getVec();
 			float angle = e1.angle(e2);
 			Vector3f cp = new Vector3f();
 			cp.cross(e1, e2);
@@ -99,18 +96,59 @@ public class Vertex extends HEElement{
 		return "" + index;
 	}
 	
+	public float getCurvature()
+	{
+		float out = 0;
+		for(HalfEdge e: Iter.ate(iteratorVE()))
+		{
+			float a1 = e.getNext().getIncidentAngle();
+			float a2 = e.getOpposite().getNext().getIncidentAngle();
+			out += (1.f / Math.tan(a1) + 1.f / Math.tan(a2)) * e.getVec().length();
+		}
+		return out / (2.f * mixedArea());
+	}
 	
+	private float mixedArea()
+	{
+		float out = 0;
+		for(HalfEdge e: Iter.ate(iteratorVE()))
+		{
+			if(e.hasFace()) out += area(e);
+		}
+		return out;
+	}
+	
+	private float area(HalfEdge e)
+	{
+		if(e.getFace().isObtuse())
+		{
+			Vector3f e1 = e.getVec();
+			Vector3f e2 = e.getNext().opposite.getVec();
+			Vector3f e3 = e.getPrev().opposite.getVec();
+			float pqSq = e1.lengthSquared();
+			float prSq = e2.lengthSquared();
+			float cotQ = (float) (1 / Math.tan(e1.angle(e3)));
+			e3.negate();
+			float cotR = (float) (1 / Math.tan(e2.angle(e3)));
+			return (prSq * cotQ + pqSq * cotR) / 8.f;
+		}
+		else if(e.isObtuse())
+		{
+			return e.getFace().area() / 2;
+		}
+		else
+		{
+			return e.getFace().area() / 4;
+		}
+	}
 
-	public boolean isAdjascent(Vertex w) {
-		boolean isAdj = false;
+	public boolean isAdjacent(Vertex w) {
 		Vertex v = null;
 		Iterator<Vertex> it = iteratorVV();
 		for( v = it.next() ; it.hasNext(); v = it.next()){
-			if( v==w){
-				isAdj=true;
-			}
+			if(v == w) return true;
 		}
-		return isAdj;
+		return false;
 	}
 	
 	public class IteratorV {
@@ -123,7 +161,7 @@ public class Vertex extends HEElement{
 		
 		private HalfEdge getNextEdge()
 		{
-			return current == null ? initial : current.prev.opposite;
+			return current == null ? initial : current.getNextOnStart();
 		}
 		
 		protected HalfEdge updateEdge()
@@ -155,7 +193,7 @@ public class Vertex extends HEElement{
 
 		@Override
 		public HalfEdge next() {
-			return updateEdge();
+			return updateEdge().opposite;
 		}
 	}
 	

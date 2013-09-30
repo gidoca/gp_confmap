@@ -22,6 +22,18 @@ void main()
 {
 	//compute a color and pass it to the fragment shader.
 	frag_color = vec4(valence, valence, valence, 1) / maxvalence;
+	if(valence > 6)
+	{
+		frag_color = vec4(1, 0, 0, 1);
+	}
+	else if(valence == 6)
+	{
+		frag_color = vec4(0, 1, 0, 1);
+	}
+	else
+	{
+		frag_color = vec4(0, 0, 1, 1);
+	}
 	// Note: gl_Position is a default output variable containing
 	// the transformed vertex position, this variable has to be computed
 	// either in the vertex shader or in the geometry shader, if present.

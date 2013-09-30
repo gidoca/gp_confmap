@@ -1,5 +1,7 @@
 package meshes;
 
+import javax.vecmath.Vector3f;
+
 /**
  * Implementation of a half-edge for the {@link HalfEdgeStructure}
  * @author Alf
@@ -95,7 +97,26 @@ public class HalfEdge extends HEElement{
 	public void setEnd(Vertex v){
 		this.incident_v = v;
 	}
+	
+	public HalfEdge getNextOnStart()
+	{
+		return getOpposite().getNext();
+	}
 
+	public HalfEdge getNextOnEnd()
+	{
+		return getNext().getOpposite();
+	}
+	
+	public HalfEdge getPrevOnStart()
+	{
+		return getPrev().getOpposite();
+	}
+	
+	public HalfEdge getPrevOnEnd()
+	{
+		return getOpposite().getPrev();
+	}
 	
 	public Vertex start(){
 		return opposite.incident_v;
@@ -108,6 +129,36 @@ public class HalfEdge extends HEElement{
 	
 	public boolean hasFace(){
 		return this.incident_f != null;
+	}
+	
+	/**
+	 * Returns true iff this half edge's face is obtuse in the incident vertex
+	 */
+	public boolean isObtuse()
+	{
+		return getCosIncidentAngle() < 0;
+	}
+	
+	public float getCosIncidentAngle()
+	{
+		Vector3f e1 = getVec();
+		e1.negate();
+		e1.normalize();
+		Vector3f e2 = getNext().getVec();
+		e2.normalize();
+		return e1.dot(e2);		
+	}
+	
+	public float getIncidentAngle()
+	{
+		return (float) Math.acos(getCosIncidentAngle());
+	}
+	
+	public Vector3f getVec()
+	{
+		Vector3f v = new Vector3f(end().getPos());
+		v.sub(start().getPos());
+		return v;
 	}
 	
 	/**

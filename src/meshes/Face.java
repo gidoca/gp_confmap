@@ -1,7 +1,11 @@
 package meshes;
 
+import helper.Iter;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import javax.vecmath.Vector3f;
 
 /**
  * Implementation of a face for the {@link HalfEdgeStructure}
@@ -22,6 +26,26 @@ public class Face extends HEElement {
 
 	public HalfEdge getHalfEdge() {
 		return anEdge;
+	}
+	
+	/**
+	 * Test if this triangle is obtuse
+	 * @return true iff triangle is obtuse
+	 */
+	public boolean isObtuse() {
+		for(HalfEdge e: Iter.ate(iteratorFE()))
+		{
+			if(e.isObtuse()) return true;
+		}
+		return false;
+	}
+	
+	public float area() {
+		Vector3f e1 = anEdge.getOpposite().getVec();
+		Vector3f e2 = anEdge.getNext().getVec();
+		Vector3f cross = new Vector3f();
+		cross.cross(e1, e2);
+		return cross.length() / 2;
 	}
 	
 	
