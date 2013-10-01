@@ -217,12 +217,17 @@ public class Vertex extends HEElement{
 
 		IteratorVF(HalfEdge initial) {
 			super(initial);
+			skipNullFaces();
 		}
 		
 		public Face next() {
 			Face out = updateEdge().incident_f;
-			while(hasNext() && getNextEdge().incident_f == null) updateEdge();
+			skipNullFaces();
 			return out;
+		}
+		
+		private void skipNullFaces() {
+			while(hasNext() && getNextEdge().incident_f == null) updateEdge();
 		}
 	}
 
