@@ -163,7 +163,7 @@ public class Vertex extends HEElement{
 			this.current = null;
 		}
 		
-		private HalfEdge getNextEdge()
+		protected HalfEdge getNextEdge()
 		{
 			return current == null ? initial : current.getNextOnStart();
 		}
@@ -220,7 +220,9 @@ public class Vertex extends HEElement{
 		}
 		
 		public Face next() {
-			return updateEdge().incident_f;
+			Face out = updateEdge().incident_f;
+			while(hasNext() && getNextEdge().incident_f == null) updateEdge();
+			return out;
 		}
 	}
 
