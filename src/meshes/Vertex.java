@@ -98,14 +98,18 @@ public class Vertex extends HEElement{
 	
 	public float getCurvature()
 	{
-		float out = 0;
+		Vector3f out = new Vector3f();
 		for(HalfEdge e: Iter.ate(iteratorVE()))
 		{
 			float a1 = e.getNext().getIncidentAngle();
+			float cotA1 = (float) (1.f / Math.tan(a1));
 			float a2 = e.getOpposite().getNext().getIncidentAngle();
-			out += (1.f / Math.tan(a1) + 1.f / Math.tan(a2)) * e.getVec().length();
+			float cotA2 = (float) (1.f / Math.tan(a2));
+			Vector3f v = e.getVec();
+			v.scale(cotA1 + cotA2);
+			out.add(v);
 		}
-		return out / (2.f * mixedArea());
+		return out.length() / (4.f * mixedArea());
 	}
 	
 	private float mixedArea()

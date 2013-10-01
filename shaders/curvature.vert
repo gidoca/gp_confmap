@@ -20,19 +20,16 @@ out vec4 frag_color;
 
 void main()
 {
-	//compute a color and pass it to the fragment shader.
-	if(curvature > 30)
-	{
-		frag_color = vec4(1, 0, 0, 1);
+	float curv_log = log(1 + curvature/10);
+	frag_color = vec4(curv_log - 1,
+					 curv_log,
+					 1 - curv_log,
+					 0);
+	if (curv_log > 1) {
+		//frag_color = vec4(1,1,1,0);
+		frag_color.y = 2 - curv_log;
 	}
-	else if(curvature > 3)
-	{
-		frag_color = vec4(0, 1, 0, 1);
-	}
-	else
-	{
-		frag_color = vec4(0, 0, 1, 1);
-	}
+	frag_color = clamp(frag_color, 0, 1);
 	// Note: gl_Position is a default output variable containing
 	// the transformed vertex position, this variable has to be computed
 	// either in the vertex shader or in the geometry shader, if present.

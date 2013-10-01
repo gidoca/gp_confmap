@@ -27,7 +27,7 @@ public class Assignment1 {
 
 	public static void main(String[] args) throws IOException{
 		//Load a wireframe mesh
-		WireframeMesh m = ObjReader.read("./objs/oneNeighborhood.obj", true);
+		WireframeMesh m = ObjReader.read("./objs/dragon.obj", true);
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 		
 		//create a half-edge structure out of the wireframe description.
