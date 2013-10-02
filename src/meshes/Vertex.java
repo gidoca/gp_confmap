@@ -124,7 +124,7 @@ public class Vertex extends HEElement{
 	
 	private float area(HalfEdge e)
 	{
-		if(e.getFace().isObtuse())
+		if(!e.getFace().isObtuse())
 		{
 			Vector3f e1 = e.getVec();
 			Vector3f e2 = e.getNext().opposite.getVec();
@@ -180,7 +180,7 @@ public class Vertex extends HEElement{
 		
 		public boolean hasNext()
 		{
-			return current == null || (current.prev != null && getNextEdge() != initial);
+			return initial != null && (current == null || (current.prev != null && getNextEdge() != initial));
 		}
 
 		public void remove() {

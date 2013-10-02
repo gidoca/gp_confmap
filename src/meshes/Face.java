@@ -88,7 +88,7 @@ public class Face extends HEElement {
 		protected HalfEdge first, current;
 
 		public boolean hasNext() {
-			return current == null || current.next != first;
+			return first != null && (current == null || current.next != first);
 		}
 
 		public void remove() {

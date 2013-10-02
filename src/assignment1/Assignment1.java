@@ -8,6 +8,8 @@ import java.io.IOException;
 
 import javax.vecmath.Vector3f;
 
+import algorithms.AvgSmoother;
+
 import meshes.Face;
 import meshes.HalfEdge;
 import meshes.HalfEdgeStructure;
@@ -27,7 +29,8 @@ public class Assignment1 {
 
 	public static void main(String[] args) throws IOException{
 		//Load a wireframe mesh
-		WireframeMesh m = ObjReader.read("./objs/dragon.obj", true);
+		//WireframeMesh m = ObjReader.read("/home/gidoca/files/uni/ma/code/renderer/qtcreator-build/src/objfiles/cow.obj", false);
+		WireframeMesh m = ObjReader.read("objs/tiger.obj", true);
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 		
 		//create a half-edge structure out of the wireframe description.
@@ -103,13 +106,13 @@ public class Assignment1 {
 		disp.addToDisplay(glMeshNormal);
 		disp.addToDisplay(glMeshCurvature);
 
-		/*GLHalfEdgeStructure glMeshUnsmoothed = new GLHalfEdgeStructure(hs);
+		GLHalfEdgeStructure glMeshUnsmoothed = new GLHalfEdgeStructure(hs);
 		glMeshUnsmoothed.configurePreferredShader("shaders/trimesh_flat.vert", 
 				"shaders/trimesh_flat.frag", 
 				"shaders/trimesh_flat.geom");
 		disp.addToDisplay(glMeshUnsmoothed);
 		AvgSmoother smoother = new AvgSmoother(hs);
-		for(int i = 0; i < 40; i++)
+		for(int i = 0; i < 4; i++)
 		{
 			smoother.apply();
 		}
@@ -117,7 +120,7 @@ public class Assignment1 {
 		glMeshSmoothed.configurePreferredShader("shaders/trimesh_flat.vert", 
 				"shaders/trimesh_flat.frag", 
 				"shaders/trimesh_flat.geom");
-		disp.addToDisplay(glMeshSmoothed);*/
+		disp.addToDisplay(glMeshSmoothed);
 		
 		
 		
@@ -139,7 +142,7 @@ public class Assignment1 {
 		
 		oneNeighbourhoodHS.enumerateVertices();
 		
-		Vertex center = oneNeighbourhoodHS.getVertices().get(0);
+		Vertex center = oneNeighbourhoodHS.getVertices().get(5);
 		for(HalfEdge he: Iter.ate(center.iteratorVE()))
 		{
 			System.out.println(he);
