@@ -274,5 +274,13 @@ public abstract class GLDisplayable {
 		POSITION, USERSPECIFIED
 	}
 	
+	@Override
+	public String toString()
+	{
+		String out = vert_shader_file;
+		if(geom_shader_file != null) out += "," + geom_shader_file;
+		out += "," + frag_shader_file;
+		return out;
+	}
 
 }

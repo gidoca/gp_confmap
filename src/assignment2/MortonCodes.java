@@ -8,9 +8,12 @@ package assignment2;
 public class MortonCodes {
 	
 	/** the three masks for dilated integer operations */
-	public static final long d100100 = 0b100100100100100100100100100100100100100100100100100100100100100L, 
-			d010010 = 0b010010010010010010010010010010010010010010010010010010010010010L, 
-			d001001 = 0b001001001001001001001001001001001001001001001001001001001001001L;
+	public static final long[] xyz_masks = {0b100100100100100100100100100100100100100100100100100100100100100L, 
+			0b010010010010010010010010010010010010010010010010010010010010010L, 
+			0b001001001001001001001001001001001001001001001001001001001001001L};
+	public static final long d100100 = xyz_masks[0];
+	public static final long d010010 = xyz_masks[1];
+	public static final long d001001 = xyz_masks[2];
 	
 	
 	/**
@@ -19,10 +22,14 @@ public class MortonCodes {
 	 * @return
 	 */
 	public static long parentCode(long code){
-		
-		
-		//implement this.
-		return -1L;
+		if(code == 0b1000)
+		{
+			return code;
+		}
+		else
+		{
+			return code >> 3;
+		}
 	}
 	
 	/**
@@ -34,9 +41,21 @@ public class MortonCodes {
 	 * @return
 	 */
 	public static long nbrCode(long code, int level, int Obxyz){
-		
-		//implement this
-		return -1L;
+		long out = 0;
+		for(int i = 0; i < 3; i++)
+		{
+			long mask = xyz_masks[i];
+			if((Obxyz & (1 << (2 -i))) == 0) continue;
+			out |= (((code | ~mask) + (Obxyz & mask)) & mask) | (code & ~mask);
+		}
+		if(overflowTest(out, level))
+		{
+			return -1;
+		}
+		else
+		{
+			return out;
+		}
 	}
 
 	/**
@@ -48,8 +67,21 @@ public class MortonCodes {
 	 * @return
 	 */	
 	public static long nbrCodeMinus(long code, int level, int Obxyz){
-		//implement this
-		return -1L;
+		long out = 0;
+		for(int i = 0; i < 3; i++)
+		{
+			long mask = xyz_masks[i];
+			if((Obxyz & (1 << (2 -i))) == 0) continue;
+			out |= (((code & mask) - (Obxyz & mask)) & mask) | (code & ~mask);
+		}
+		if(overflowTest(out, level))
+		{
+			return -1;
+		}
+		else
+		{
+			return out;
+		}
 	}
 	
 	
@@ -62,11 +94,7 @@ public class MortonCodes {
 	 * @return
 	 */
 	public static boolean overflowTest(long code, int level){
-
-		//implement this
-		
-		return true;
-		
+		return !isCellOnLevelXGrid(code, level);
 	}
 	
 	
@@ -78,9 +106,7 @@ public class MortonCodes {
 	 * @return
 	 */
 	public static boolean isCellOnLevelXGrid(long cell_code, int level){
-
-		//implement this..
-		return false;
+		return cell_code >> (3 * level) == 1;
 	}
 	
 	
@@ -92,8 +118,8 @@ public class MortonCodes {
 	 * it will lie on the levels k+1,k+2... tree_depth too.
 	 */
 	public static boolean isVertexOnLevelXGrid(long vertex_code, int level, int tree_depth){
-		//implement this..
-		return false;
+		long mask = ~(-1 << 3 * (tree_depth - level));
+		return (mask & vertex_code) == 0;
 	}
 	
 	/**

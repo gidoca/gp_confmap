@@ -5,12 +5,10 @@ import java.util.ArrayList;
 import javax.media.opengl.GL;
 import javax.vecmath.Tuple3f;
 
+import meshes.PointCloud;
 import openGL.gl.GLDisplayable;
 import openGL.gl.GLRenderer;
-import openGL.gl.GLDisplayable.Semantic;
 import openGL.objects.Transformation;
-
-import meshes.PointCloud;
 
 /**
  * Wrapper for Pointclouds

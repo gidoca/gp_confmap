@@ -7,9 +7,7 @@ import javax.media.opengl.GL;
 
 import openGL.gl.GLDisplayable;
 import openGL.gl.GLRenderer;
-import openGL.gl.GLDisplayable.Semantic;
 import openGL.objects.Transformation;
-
 import assignment2.HashOctree;
 import assignment2.HashOctreeVertex;
 

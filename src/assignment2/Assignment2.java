@@ -41,6 +41,15 @@ public class Assignment2 {
 		//you can test your MortonCode methods by checking these results, e.g. as a Junit test
 		//Further test at least one case where -z underflow should occur
 		//and a case where overflow occurs.
-	
+		assert(MortonCodes.parentCode(hash) == parent);
+		assert(MortonCodes.nbrCode(hash, 4, 0b100) == nbr_plus_x);
+		assert(MortonCodes.nbrCode(hash, 4, 0b010) == nbr_plus_y);
+		assert(MortonCodes.nbrCode(hash, 4, 0b001) == nbr_plus_z);
+		assert(MortonCodes.nbrCodeMinus(hash, 4, 0b100) == nbr_minus_x);
+		assert(MortonCodes.nbrCodeMinus(hash, 4, 0b010) == nbr_minus_y);
+		assert(MortonCodes.nbrCodeMinus(hash, 4, 0b001) == nbr_minus_z);
+		assert(MortonCodes.isVertexOnLevelXGrid(vertexHash, 3, 4));
+		assert(MortonCodes.isVertexOnLevelXGrid(vertexHash, 4, 4));
+		assert(!MortonCodes.isVertexOnLevelXGrid(vertexHash, 2, 4));
 	}
 }
