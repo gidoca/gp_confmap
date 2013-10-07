@@ -253,7 +253,7 @@ public class HashOctree {
 	}
 
 
-	public ArrayList<HashOctreeCell> getLeafs() {
+	public ArrayList<HashOctreeCell> getLeaves() {
 		return leafs;
 	}
 
@@ -288,7 +288,7 @@ public class HashOctree {
 		return this.cellMap.size();
 	}
 
-	public int numberOfLeafs() {
+	public int numberOfLeaves() {
 		return leafs.size();
 	}
 	

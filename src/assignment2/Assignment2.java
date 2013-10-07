@@ -1,6 +1,13 @@
 package assignment2;
 
+import glWrapper.GLHashtree;
+
 import java.io.IOException;
+
+import openGL.MyDisplay;
+
+import meshes.PointCloud;
+import meshes.reader.ObjReader;
 
 
 public class Assignment2 {
@@ -11,7 +18,7 @@ public class Assignment2 {
 		
 		//these demos will run once all methods in the MortonCodes class are
 		//implemented.
-		//hashTreeDemo(ObjReader.readAsPointCloud("./objs/dragon.obj", true));
+		hashTreeDemo(ObjReader.readAsPointCloud("./objs/dragon.obj", true));
 		//hashTreeDemo(PlyReader.readPointCloud("./objs/octreeTest2.ply", true));
 		
 	}
@@ -49,8 +56,38 @@ public class Assignment2 {
 		assert(MortonCodes.nbrCodeMinus(hash, 4, 0b010) == nbr_minus_y);
 		assert(MortonCodes.nbrCodeMinus(hash, 4, 0b001) == nbr_minus_z);
 		assert(MortonCodes.isCellOnLevelXGrid(hash, 4));
+		assert(!MortonCodes.isCellOnLevelXGrid(hash, 3));
 		assert(MortonCodes.isVertexOnLevelXGrid(vertexHash, 3, 4));
 		assert(MortonCodes.isVertexOnLevelXGrid(vertexHash, 4, 4));
 		assert(!MortonCodes.isVertexOnLevelXGrid(vertexHash, 2, 4));
+	}
+	
+	public static void hashTreeDemo(PointCloud p)
+	{
+		HashOctree ot = new HashOctree(p, 4, 1, 1);
+		
+		GLHashtree glot = new GLHashtree(ot);
+		glot.configurePreferredShader("shaders/octree.vert", "shaders/octree.frag", "shaders/octree.geom");
+		GLHashtree glotP = new GLHashtree(ot);
+		glotP.configurePreferredShader("shaders/octree_parent.vert", "shaders/octree.frag", "shaders/octree_parent.geom");
+		glotP.addElement(3, "parent_pos", new HashOctreeCellAttribute() {
+			@Override
+			public float[] getAttribute(HashOctreeCell v, HashOctree t) {
+				HashOctreeCell p = t.getParent(v);
+				if(p == null)
+				{
+					return new float[]{0, 0, 0};
+				}
+				else
+				{
+					return new float[]{p.center.x, p.center.y, p.center.z};
+				}
+			}
+		});
+
+		
+		MyDisplay disp = new MyDisplay();
+		disp.addToDisplay(glot);
+		disp.addToDisplay(glotP);
 	}
 }

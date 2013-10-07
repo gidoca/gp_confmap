@@ -7,9 +7,9 @@ import javax.media.opengl.GL;
 import openGL.gl.GLDisplayable;
 import openGL.gl.GLRenderer;
 import openGL.objects.Transformation;
-
 import assignment2.HashOctree;
 import assignment2.HashOctreeCell;
+import assignment2.HashOctreeCellAttribute;
 
 /**
  * Simple GLWrapper for the {@link HashOctree}.
@@ -23,22 +23,22 @@ public class GLHashtree extends GLDisplayable {
 	private HashOctree myTree;
 	public GLHashtree(HashOctree tree) {
 		
-		super(tree.numberOfLeafs());
+		super(tree.numberOfLeaves());
 		this.myTree = tree;
 		//Add Vertices
-		float[] verts = new float[myTree.numberOfLeafs()*3];
-		float[] sides = new float[myTree.numberOfLeafs()];
+		float[] verts = new float[myTree.numberOfLeaves()*3];
+		float[] sides = new float[myTree.numberOfLeaves()];
 		
 		
 		int idx = 0, idx2 = 0;
-		for(HashOctreeCell n : tree.getLeafs()){
+		for(HashOctreeCell n : tree.getLeaves()){
 			verts[idx++] = n.center.x;
 			verts[idx++] = n.center.y;
 			verts[idx++] = n.center.z;
 			sides[idx2++] = n.side;
 		}
 		
-		int[] ind = new int[myTree.numberOfLeafs()];
+		int[] ind = new int[myTree.numberOfLeaves()];
 		for(int i = 0; i < ind.length; i++)	{
 			ind[i]=i;
 		}
@@ -54,9 +54,9 @@ public class GLHashtree extends GLDisplayable {
 	 * @param values
 	 */
 	public void addFunctionValues(ArrayList<Float> values){
-		float[] vals = new float[myTree.numberOfLeafs()];
+		float[] vals = new float[myTree.numberOfLeaves()];
 		
-		for(HashOctreeCell n: myTree.getLeafs()){
+		for(HashOctreeCell n: myTree.getLeaves()){
 			for(int i = 0; i <=0b111; i++){
 				vals[n.leafIndex] += values.get(myTree.getNbr_c2v(n, i).index);//*/Math.signum(values.get(myTree.getVertex(n, i).index));
 			}
@@ -65,6 +65,22 @@ public class GLHashtree extends GLDisplayable {
 		}
 		
 		this.addElement(vals, Semantic.USERSPECIFIED , 1, "func");
+	}
+	
+	public void addElement(int n, String name, HashOctreeCellAttribute attr)
+	{
+		float[] f = new float[n * getNumberOfVertices()];
+		int i = 0;
+		for(HashOctreeCell v: myTree.getLeaves())
+		{
+			float[] current_f = attr.getAttribute(v, myTree);
+			assert(current_f.length == n);
+			for(int j = 0; j < n; j++)
+			{
+				f[i++] = current_f[j];
+			}
+		}
+		addElement(f, Semantic.USERSPECIFIED, n, name);
 	}
 
 	public int glRenderFlag() {
