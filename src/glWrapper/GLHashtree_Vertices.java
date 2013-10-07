@@ -10,6 +10,7 @@ import openGL.gl.GLRenderer;
 import openGL.objects.Transformation;
 import assignment2.HashOctree;
 import assignment2.HashOctreeVertex;
+import assignment2.HashOctreeVertexAttribute;
 
 /**
  * GLWrapper which will send the HashOctree vertex positions to the GPU
@@ -57,6 +58,22 @@ public class GLHashtree_Vertices extends GLDisplayable {
 		}
 		
 		this.addElement(vals, Semantic.USERSPECIFIED , 1, "func");
+	}
+
+	public void addElement(int n, String name, HashOctreeVertexAttribute attr)
+	{
+		float[] f = new float[n * getNumberOfVertices()];
+		int i = 0;
+		for(HashOctreeVertex v: myTree.getVertices())
+		{
+			float[] current_f = attr.getAttribute(v, myTree);
+			assert(current_f.length == n);
+			for(int j = 0; j < n; j++)
+			{
+				f[i++] = current_f[j];
+			}
+		}
+		addElement(f, Semantic.USERSPECIFIED, n, name);
 	}
 
 	@Override

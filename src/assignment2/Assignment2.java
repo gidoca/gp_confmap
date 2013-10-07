@@ -1,6 +1,7 @@
 package assignment2;
 
 import glWrapper.GLHashtree;
+import glWrapper.GLHashtree_Vertices;
 
 import java.io.IOException;
 
@@ -18,7 +19,7 @@ public class Assignment2 {
 		//these demos will run once all methods in the MortonCodes class are
 		//implemented.
 //		hashTreeDemo(ObjReader.readAsPointCloud("./objs/dragon.obj", true));
-		hashTreeDemo(PlyReader.readPointCloud("./objs/octreeTest2.ply", true));
+		hashTreeDemo(PlyReader.readPointCloud("./objs/octreeTest.ply", true));
 		
 	}
 	
@@ -106,11 +107,59 @@ public class Assignment2 {
 				}
 			});
 		}
+		GLHashtree_Vertices glotNV = new GLHashtree_Vertices(ot);
+		glotNV.configurePreferredShader("shaders/octree_nbr.vert", "shaders/octree.frag", "shaders/octree_vnbr.geom");
+		for(int i = 0b001; i != 0b1000; i <<= 1)
+		{
+			final int Obxyz = i;
+			String coord = i == 0b100 ? "x" :
+				           i == 0b010 ? "y" :
+				                        "z";
+			glotNV.addElement(3, "nbr_pos_" + coord, new HashOctreeVertexAttribute() {
+				@Override
+				public float[] getAttribute(HashOctreeVertex v, HashOctree t) {
+					HashOctreeVertex p = t.getNbr_v2v(v, Obxyz);
+					if(p == null)
+					{
+						return new float[]{v.position.x, v.position.y, v.position.z};
+					}
+					else
+					{
+						return new float[]{p.position.x, p.position.y, p.position.z};
+					}
+				}
+			});
+		}
+		GLHashtree_Vertices glotNVM = new GLHashtree_Vertices(ot);
+		glotNVM.configurePreferredShader("shaders/octree_nbr.vert", "shaders/octree.frag", "shaders/octree_vnbr.geom");
+		for(int i = 0b001; i != 0b1000; i <<= 1)
+		{
+			final int Obxyz = i;
+			String coord = i == 0b100 ? "x" :
+				           i == 0b010 ? "y" :
+				                        "z";
+			glotNVM.addElement(3, "nbr_pos_" + coord, new HashOctreeVertexAttribute() {
+				@Override
+				public float[] getAttribute(HashOctreeVertex v, HashOctree t) {
+					HashOctreeVertex p = t.getNbr_v2vMinus(v, Obxyz);
+					if(p == null)
+					{
+						return new float[]{v.position.x, v.position.y, v.position.z};
+					}
+					else
+					{
+						return new float[]{p.position.x, p.position.y, p.position.z};
+					}
+				}
+			});
+		}
 
 		
 		MyDisplay disp = new MyDisplay();
 		disp.addToDisplay(glot);
 		disp.addToDisplay(glotP);
 		disp.addToDisplay(glotN);
+		disp.addToDisplay(glotNV);
+		disp.addToDisplay(glotNVM);
 	}
 }

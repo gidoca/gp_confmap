@@ -428,9 +428,15 @@ public class HashOctree {
 	 * @return
 	 */
 	public HashOctreeVertex getNbr_v2v(HashOctreeVertex v, int nbr_0bxyz){
-
-		//TODO implement this
-		
+		for(int l = v.maxLvl; l >= v.minLvl; l--)
+		{
+			int shift = (depth - l) * 3;
+			long nbr = MortonCodes.nbrCode(v.code >> shift, l, nbr_0bxyz);
+			if(nbr == -1) return null;
+			long shiftedNbr = nbr << shift;
+			HashOctreeVertex current = vertexMap.get(shiftedNbr);
+			if(current != null) return current;
+		}
 		return null;
 	}
 	
@@ -442,9 +448,15 @@ public class HashOctree {
 	 * @return
 	 */
 	public HashOctreeVertex getNbr_v2vMinus(HashOctreeVertex v, int nbr_0bxyz){
-		
-		//TODO implement this
-		
+		for(int l = v.maxLvl; l >= v.minLvl; l--)
+		{
+			int shift = (depth - l) * 3;
+			long nbr = MortonCodes.nbrCodeMinus(v.code >> shift, l, nbr_0bxyz);
+			if(nbr == -1) return null;
+			long shiftedNbr = nbr << shift;
+			HashOctreeVertex current = vertexMap.get(shiftedNbr);
+			if(current != null) return current;
+		}
 		return null;
 	}
 	

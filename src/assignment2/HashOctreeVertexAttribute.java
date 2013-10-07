@@ -1,5 +1,5 @@
 package assignment2;
 
 public interface HashOctreeVertexAttribute {
-	float[] getAttribute(HashOctreeVertex v);
+	float[] getAttribute(HashOctreeVertex v, HashOctree t);
 }
