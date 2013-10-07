@@ -22,7 +22,7 @@ public class MortonCodes {
 	 * @return
 	 */
 	public static long parentCode(long code){
-		if(code == 0b1000)
+		if(code == 1)
 		{
 			return code;
 		}
@@ -48,14 +48,7 @@ public class MortonCodes {
 			if((Obxyz & (1 << (2 -i))) == 0) continue;
 			out |= (((code | ~mask) + (Obxyz & mask)) & mask) | (code & ~mask);
 		}
-		if(overflowTest(out, level))
-		{
-			return -1;
-		}
-		else
-		{
-			return out;
-		}
+		return overflowTest(out, level);
 	}
 
 	/**
@@ -74,14 +67,7 @@ public class MortonCodes {
 			if((Obxyz & (1 << (2 -i))) == 0) continue;
 			out |= (((code & mask) - (Obxyz & mask)) & mask) | (code & ~mask);
 		}
-		if(overflowTest(out, level))
-		{
-			return -1;
-		}
-		else
-		{
-			return out;
-		}
+		return overflowTest(out, level);
 	}
 	
 	
@@ -91,10 +77,17 @@ public class MortonCodes {
 	 * if the delimiter bit is untouched and is the highest bit set.
 	 * @param code
 	 * @param level
-	 * @return
+	 * @return code if no overflow, -1 otherwhise
 	 */
-	public static boolean overflowTest(long code, int level){
-		return !isCellOnLevelXGrid(code, level);
+	public static long overflowTest(long code, int level){
+		if(isCellOnLevelXGrid(code, level))
+		{
+			return code;
+		}
+		else
+		{
+			return -1;
+		}
 	}
 	
 	
