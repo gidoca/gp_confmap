@@ -319,10 +319,10 @@ public class HashOctree {
 	 * Retrieve a vertex neighboring this cell i.e. a corner vertex of the cell
 	 * 
 	 *    011------111
-	 *   /         /|
-	 *  /         / |
+	 *   / |       /|
+	 *  /  |      / |
 	 * 010------101 |
-	 * |         |  |
+	 * |   |     |  |
 	 * |  001----|-101
 	 * | /       | /
 	 * |/        |/
@@ -380,9 +380,7 @@ public class HashOctree {
 	 * @return
 	 */
 	public HashOctreeCell getParent(HashOctreeCell cell){
-		
-		//TODO implement this...
-		return null;
+		return cellMap.get(MortonCodes.parentCode(cell.code));
 	}
 	
 	/**

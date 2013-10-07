@@ -48,6 +48,7 @@ public class Assignment2 {
 		assert(MortonCodes.nbrCodeMinus(hash, 4, 0b100) == nbr_minus_x);
 		assert(MortonCodes.nbrCodeMinus(hash, 4, 0b010) == nbr_minus_y);
 		assert(MortonCodes.nbrCodeMinus(hash, 4, 0b001) == nbr_minus_z);
+		assert(MortonCodes.isCellOnLevelXGrid(hash, 4));
 		assert(MortonCodes.isVertexOnLevelXGrid(vertexHash, 3, 4));
 		assert(MortonCodes.isVertexOnLevelXGrid(vertexHash, 4, 4));
 		assert(!MortonCodes.isVertexOnLevelXGrid(vertexHash, 2, 4));

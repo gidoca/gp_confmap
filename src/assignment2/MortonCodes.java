@@ -42,11 +42,8 @@ public class MortonCodes {
 	 */
 	public static long nbrCode(long code, int level, int Obxyz){
 		long out = 0;
-		for(int i = 0; i < 3; i++)
-		{
-			long mask = xyz_masks[i];
-			if((Obxyz & (1 << (2 -i))) == 0) continue;
-			out |= (((code | ~mask) + (Obxyz & mask)) & mask) | (code & ~mask);
+		for(long mask: xyz_masks) {
+			out |= (((code | ~mask) + (Obxyz & mask)) & mask);
 		}
 		return overflowTest(out, level);
 	}
@@ -61,11 +58,8 @@ public class MortonCodes {
 	 */	
 	public static long nbrCodeMinus(long code, int level, int Obxyz){
 		long out = 0;
-		for(int i = 0; i < 3; i++)
-		{
-			long mask = xyz_masks[i];
-			if((Obxyz & (1 << (2 -i))) == 0) continue;
-			out |= (((code & mask) - (Obxyz & mask)) & mask) | (code & ~mask);
+		for(long mask: xyz_masks) {
+			out |= (((code & mask) - (Obxyz & mask)) & mask);
 		}
 		return overflowTest(out, level);
 	}
