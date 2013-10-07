@@ -24,7 +24,7 @@ public class MortonCodes {
 	public static long parentCode(long code){
 		if(code == 1)
 		{
-			return code;
+			return -1;
 		}
 		else
 		{

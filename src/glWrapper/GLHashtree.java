@@ -57,7 +57,7 @@ public class GLHashtree extends GLDisplayable {
 		float[] vals = new float[myTree.numberOfLeaves()];
 		
 		for(HashOctreeCell n: myTree.getLeaves()){
-			for(int i = 0; i <=0b111; i++){
+			for(int i = 0; i <= 0b111; i++){
 				vals[n.leafIndex] += values.get(myTree.getNbr_c2v(n, i).index);//*/Math.signum(values.get(myTree.getVertex(n, i).index));
 			}
 			vals[n.leafIndex] /=8;

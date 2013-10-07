@@ -392,10 +392,13 @@ public class HashOctree {
 	 * @return
 	 */
 	public HashOctreeCell getNbr_c2c(HashOctreeCell cell, int Obxyz){
-		
-		//TODO implement this...
-		
-		return null;
+		long nbrCode = MortonCodes.nbrCode(cell.code, cell.lvl, Obxyz);
+		while(cellMap.get(nbrCode) == null)
+		{
+			if(nbrCode == -1) return null;
+			nbrCode = MortonCodes.parentCode(nbrCode);
+		}
+		return cellMap.get(nbrCode);
 	}
 	
 	/**
@@ -406,9 +409,13 @@ public class HashOctree {
 	 * @return
 	 */
 	public HashOctreeCell getNbr_c2cMinus(HashOctreeCell cell, int Obxyz){
-
-		//TODO implement this
-		return null;
+		long nbrCode = MortonCodes.nbrCodeMinus(cell.code, cell.lvl, Obxyz);
+		if(nbrCode == -1) return null;
+		while(cellMap.get(nbrCode) == null)
+		{
+			nbrCode = MortonCodes.parentCode(nbrCode);
+		}
+		return cellMap.get(nbrCode);
 	}
 	
 	

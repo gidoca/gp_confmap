@@ -4,10 +4,9 @@ import glWrapper.GLHashtree;
 
 import java.io.IOException;
 
-import openGL.MyDisplay;
-
 import meshes.PointCloud;
-import meshes.reader.ObjReader;
+import meshes.reader.PlyReader;
+import openGL.MyDisplay;
 
 
 public class Assignment2 {
@@ -18,8 +17,8 @@ public class Assignment2 {
 		
 		//these demos will run once all methods in the MortonCodes class are
 		//implemented.
-		hashTreeDemo(ObjReader.readAsPointCloud("./objs/dragon.obj", true));
-		//hashTreeDemo(PlyReader.readPointCloud("./objs/octreeTest2.ply", true));
+//		hashTreeDemo(ObjReader.readAsPointCloud("./objs/dragon.obj", true));
+		hashTreeDemo(PlyReader.readPointCloud("./objs/octreeTest2.ply", true));
 		
 	}
 	
@@ -84,10 +83,34 @@ public class Assignment2 {
 				}
 			}
 		});
+		GLHashtree glotN = new GLHashtree(ot);
+		glotN.configurePreferredShader("shaders/octree_nbr.vert", "shaders/octree.frag", "shaders/octree_nbr.geom");
+		for(int i = 0b001; i != 0b1000; i <<= 1)
+		{
+			final int Obxyz = i;
+			String coord = i == 0b100 ? "x" :
+				           i == 0b010 ? "y" :
+				                        "z";
+			glotN.addElement(3, "nbr_pos_" + coord, new HashOctreeCellAttribute() {
+				@Override
+				public float[] getAttribute(HashOctreeCell v, HashOctree t) {
+					HashOctreeCell p = t.getNbr_c2c(v, Obxyz);
+					if(p == null)
+					{
+						return new float[]{0, 0, 0};
+					}
+					else
+					{
+						return new float[]{p.center.x, p.center.y, p.center.z};
+					}
+				}
+			});
+		}
 
 		
 		MyDisplay disp = new MyDisplay();
 		disp.addToDisplay(glot);
 		disp.addToDisplay(glotP);
+		disp.addToDisplay(glotN);
 	}
 }
