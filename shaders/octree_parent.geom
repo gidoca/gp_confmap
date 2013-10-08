@@ -6,7 +6,7 @@ uniform mat4 projection;
 uniform mat4 modelview;
 
 layout(points) in;
-layout(line_strip, max_vertices = 18) out;
+layout(line_strip, max_vertices = 2) out;
 
 in vec4 position_g[];
 in float side_g[];
