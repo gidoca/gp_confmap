@@ -420,7 +420,8 @@ public class HashOctree {
 	
 	
 	
-	/** find and return a vertex on the finest grid possible, that shares an edge of some octreecell
+	/** 
+	 * find and return a vertex on the finest grid possible, that shares an edge of some octreecell
 	 * with the vertex v and lies in direction nbr_0bxyz (0b100 = +x direction, 0b010 = +y direction
 	 * 0b001 = +z direction). If no neighbor exists, null is returned.
 	 * @param v

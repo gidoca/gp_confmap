@@ -52,6 +52,7 @@ public class Assignment2 {
 		assert(MortonCodes.nbrCode(hash, 4, 0b100) == nbr_plus_x);
 		assert(MortonCodes.nbrCode(hash, 4, 0b010) == nbr_plus_y);
 		assert(MortonCodes.nbrCode(hash, 4, 0b001) == nbr_plus_z);
+		assert(MortonCodes.nbrCode(0b1111111, 2, 0b100) == -1);
 		assert(MortonCodes.nbrCodeMinus(hash, 4, 0b100) == nbr_minus_x);
 		assert(MortonCodes.nbrCodeMinus(hash, 4, 0b010) == nbr_minus_y);
 		assert(MortonCodes.nbrCodeMinus(hash, 4, 0b001) == nbr_minus_z);

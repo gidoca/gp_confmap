@@ -34,7 +34,7 @@ public class HashOctreeCell {
 	 */
 	public ArrayList<Point3f> points;
 	/**
-	 * If this cell is a leaf it gets a unique index, as all leafs are enumerated.
+	 * If this cell is a leaf it gets a unique index, as all leaves are enumerated.
 	 */
 	public int leafIndex;
 	

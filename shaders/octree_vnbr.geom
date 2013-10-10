@@ -20,21 +20,21 @@ void main()
 	
 	gl_Position = projection*modelview*(position_g[0]);
 	EmitVertex();
-	gl_Position = projection*modelview*(position_g[0] + .3 * (nbr_pos_x_g[0] - position_g[0]));
+	gl_Position = projection*modelview*(position_g[0] + 1/3. * (nbr_pos_x_g[0] - position_g[0]));
 	EmitVertex();
 	gl_Position = projection*modelview*(position_g[0]);
 	EmitVertex();
 	
 	gl_Position = projection*modelview*(position_g[0]);
 	EmitVertex();
-	gl_Position = projection*modelview*(position_g[0] + .3 * (nbr_pos_y_g[0] - position_g[0]));
+	gl_Position = projection*modelview*(position_g[0] + 1/3. * (nbr_pos_y_g[0] - position_g[0]));
 	EmitVertex();
 	gl_Position = projection*modelview*(position_g[0]);
 	EmitVertex();
 	
 	gl_Position = projection*modelview*(position_g[0]);
 	EmitVertex();
-	gl_Position = projection*modelview*(position_g[0] + .3 * (nbr_pos_z_g[0] - position_g[0]));
+	gl_Position = projection*modelview*(position_g[0] + 1/3. * (nbr_pos_z_g[0] - position_g[0]));
 	EmitVertex();
 	gl_Position = projection*modelview*(position_g[0]);
 	EmitVertex();
