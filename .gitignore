@@ -1,3 +1,4 @@
 target/
 .*.swp
 hs_err_pid*.log
+python/temp/
