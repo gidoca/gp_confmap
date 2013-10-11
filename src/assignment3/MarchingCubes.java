@@ -112,7 +112,10 @@ public class MarchingCubes {
 				Point2i p = triangles[i++];
 				indices[k] = pushEdge(p, n);
 			}
-			result.faces.add(indices);
+			if(indices[0] != indices[1] && indices[0] != indices[2] && indices[1] != indices[2])
+			{
+				result.faces.add(indices);
+			}
 		}
 	}
 	
@@ -131,6 +134,7 @@ public class MarchingCubes {
 			result.vertices.add(p1);
 		}
 		return existingEdgeIndices.get(key);
+//		return result.vertices.size() - 1;
 	}
 
 	

@@ -1,5 +1,6 @@
 package assignment3;
 
+import glWrapper.GLHalfEdgeStructure;
 import glWrapper.GLHashtree;
 import glWrapper.GLHashtree_Vertices;
 import glWrapper.GLWireframeMesh;
@@ -10,8 +11,12 @@ import java.util.ArrayList;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
 
+import meshes.HalfEdgeStructure;
 import meshes.PointCloud;
+import meshes.exception.DanglingTriangleException;
+import meshes.exception.MeshNotOrientedException;
 import openGL.MyDisplay;
+import algorithms.AvgSmoother;
 import assignment2.HashOctree;
 import assignment2.HashOctreeVertex;
 
@@ -36,9 +41,6 @@ public class Assignment3 {
 		//and sample per vertex function values.
 		ArrayList<Float> x = sphericalFunction(tree);
 		
-		MarchingCubes mc = new MarchingCubes(tree);
-		mc.dualMC(x);
-		
 		
 		//And show off...
 		
@@ -59,11 +61,37 @@ public class Assignment3 {
 				"shaders/octree_zro.frag", "shaders/octree_zro.geom");
 		d.addToDisplay(gltree);
 		
+		MarchingCubes mc = new MarchingCubes(tree);
+		
+		mc.primaryMC(x);
 		GLWireframeMesh glwm = new GLWireframeMesh(mc.getResult());
 		glwm.configurePreferredShader("shaders/trimesh_flat.vert", 
 				"shaders/trimesh_flat.frag", 
 				"shaders/trimesh_flat.geom");
 		d.addToDisplay(glwm);
+		
+		
+		mc.dualMC(x);
+		GLWireframeMesh glwmd = new GLWireframeMesh(mc.getResult());
+		glwmd.configurePreferredShader("shaders/trimesh_flat.vert", 
+				"shaders/trimesh_flat.frag", 
+				"shaders/trimesh_flat.geom");
+		d.addToDisplay(glwmd);
+		
+		HalfEdgeStructure mesh = new HalfEdgeStructure();
+		try {
+			mesh.init(mc.getResult());
+		} catch (MeshNotOrientedException | DanglingTriangleException e) {
+			e.printStackTrace();
+			return;
+		}
+		AvgSmoother smoother = new AvgSmoother(mesh);
+		smoother.apply();
+		GLHalfEdgeStructure glsm = new GLHalfEdgeStructure(mesh);
+		glsm.configurePreferredShader("shaders/trimesh_flat.vert", 
+				"shaders/trimesh_flat.frag", 
+				"shaders/trimesh_flat.geom");
+		d.addToDisplay(glsm);
 	}
 	
 	
