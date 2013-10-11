@@ -153,7 +153,7 @@ public class HashOctreeCell implements MarchableCube {
 
 
 	@Override
-	public MarchableCube getCornerElement(int Obxyz, HashOctree tree) {
+	public HashOctreeVertex getCornerElement(int Obxyz, HashOctree tree) {
 		//return tree.getVertex(MortonCodes.pad(MortonCodes.nbrCode(this.code, this.lvl, Obxyz), tree.getDepth()));
 		return tree.getNbr_c2v(this, Obxyz);
 	}

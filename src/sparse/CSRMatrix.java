@@ -43,6 +43,39 @@ public class CSRMatrix {
 		}
 	}
 	
+	public void set(int row, int col, float val)
+	{
+		col_val colval = getColVal(row, col);
+		if(colval == null)
+		{
+			colval = new col_val(col, val);
+			rows.get(row).add(colval);
+		}
+		colval.val = val;
+	}
+	
+	private col_val getColVal(int row, int col)
+	{
+		for(col_val c: rows.get(row))
+		{
+			if(c.col == col) return c;
+		}
+		return null;
+	}
+	
+	public float get(int row, int col)
+	{
+		col_val out = getColVal(row, col);
+		if(out == null)
+		{
+			return 0;
+		}
+		else
+		{
+			return out.val;
+		}
+	}
+	
 	/**
 	 * number of stored entries
 	 * @return

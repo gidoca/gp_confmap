@@ -1,10 +1,17 @@
 package assignment3;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
+import javax.vecmath.Point3f;
+import javax.vecmath.Vector3f;
+
 import meshes.PointCloud;
 import sparse.CSRMatrix;
 import sparse.CSRMatrix.col_val;
 import sparse.LinearSystem;
 import assignment2.HashOctree;
+import assignment2.HashOctreeCell;
 import assignment2.HashOctreeVertex;
 import assignment2.MortonCodes;
 
@@ -60,17 +67,28 @@ public class SSDMatrices {
 	 *
 	 */
 	public static CSRMatrix D0Term(HashOctree tree, PointCloud cloud){
-		
-		// Do your stuff
-		
-		return null;
+		CSRMatrix out = new CSRMatrix(cloud.points.size(), tree.numberofVertices());
+		for(int i = 0; i < cloud.points.size(); i++)
+		{
+			Point3f p = cloud.points.get(i);
+			HashOctreeCell cell = tree.getCell(p);
+			for(int j = 0b000; j <= 0b111; j++)
+			{
+				HashOctreeVertex v = cell.getCornerElement(j, tree);
+				Vector3f weights = new Vector3f(p);
+				weights.sub(v.getPosition());
+				float weight = (float) (Math.abs(weights.x * weights.y * weights.z) / cell.side / cell.side / cell.side);// / Math.sqrt(cloud.points.size()));
+				out.set(i, v.index, weight);
+			}
+		}
+		return out;
 	}
 
 	/**
 	 * matrix with three rows per point and 1 column per octree vertex.
 	 * rows with i%3 = 0 cover x gradients, =1 y-gradients, =2 z gradients;
-	 * The row i, i+1, i+2 correxponds to the point/normal i/3.
-	 * Three consecutant rows belong to the same gradient, the gradient in the cell
+	 * The row i, i+1, i+2 corresponds to the point/normal i/3.
+	 * Three consecutive rows belong to the same gradient, the gradient in the cell
 	 * of pointcloud.point[row/3]; 
 	 */
 	public static CSRMatrix D1Term(HashOctree tree, PointCloud cloud) {

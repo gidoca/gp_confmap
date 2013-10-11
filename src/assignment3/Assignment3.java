@@ -16,6 +16,7 @@ import meshes.PointCloud;
 import meshes.exception.DanglingTriangleException;
 import meshes.exception.MeshNotOrientedException;
 import openGL.MyDisplay;
+import sparse.CSRMatrix;
 import algorithms.AvgSmoother;
 import assignment2.HashOctree;
 import assignment2.HashOctreeVertex;
@@ -25,9 +26,9 @@ public class Assignment3 {
 	public static void main(String[] args) throws IOException{
 		
 		
-		marchingCubesDemo();
+//		marchingCubesDemo();
 		
-
+		energyTest();
 			
 	}
 	
@@ -94,7 +95,29 @@ public class Assignment3 {
 		d.addToDisplay(glsm);
 	}
 	
-	
+	public static void energyTest()
+	{
+		//Test Data: create an octree
+		PointCloud cloud = nonUniformPointCloud(15);
+		HashOctree tree = new HashOctree( 
+				cloud,
+				6,7,1.2f);
+		ArrayList<Float> xcoords = new ArrayList<Float>(tree.numberofVertices());
+		for(HashOctreeVertex v: tree.getVertices())
+		{
+			xcoords.add(v.getPosition().x);
+		}
+		ArrayList<Float> out = new ArrayList<>();
+		CSRMatrix d0 = SSDMatrices.D0Term(tree, cloud);
+		d0.mult(xcoords, out);
+		float sqrdiff = 0;
+		for(int i = 0; i < out.size(); i++)
+		{
+			float diff = cloud.points.get(i).x - out.get(i);
+			sqrdiff += diff * diff;
+		}
+		System.out.println(sqrdiff / out.size());
+	}
 	
 	
 	/**
@@ -120,7 +143,7 @@ public class Assignment3 {
 	}
 	
 	/**
-	 * generating a poitcloud
+	 * generating a pointcloud
 	 * @param max
 	 * @return
 	 */
