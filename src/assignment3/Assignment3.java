@@ -102,7 +102,7 @@ public class Assignment3 {
 		HashOctree tree = new HashOctree( 
 				cloud,
 				6,7,1.2f);
-		ArrayList<Float> xcoords = new ArrayList<Float>(tree.numberofVertices());
+		ArrayList<Float> xcoords = new ArrayList<Float>();
 		for(HashOctreeVertex v: tree.getVertices())
 		{
 			xcoords.add(v.getPosition().x);

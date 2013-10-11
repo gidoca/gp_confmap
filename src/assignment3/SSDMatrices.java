@@ -1,8 +1,5 @@
 package assignment3;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
 
@@ -77,7 +74,8 @@ public class SSDMatrices {
 				HashOctreeVertex v = cell.getCornerElement(j, tree);
 				Vector3f weights = new Vector3f(p);
 				weights.sub(v.getPosition());
-				float weight = (float) (Math.abs(weights.x * weights.y * weights.z) / cell.side / cell.side / cell.side);// / Math.sqrt(cloud.points.size()));
+				weights.absolute();
+				float weight = (1 - weights.x / cell.side) * (1 - weights.y / cell.side) * (1 - weights.z / cell.side);
 				out.set(i, v.index, weight);
 			}
 		}
