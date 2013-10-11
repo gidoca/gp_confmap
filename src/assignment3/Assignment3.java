@@ -37,7 +37,7 @@ public class Assignment3 {
 		ArrayList<Float> x = sphericalFunction(tree);
 		
 		MarchingCubes mc = new MarchingCubes(tree);
-		mc.primaryMC(x);
+		mc.dualMC(x);
 		
 		
 		//And show off...

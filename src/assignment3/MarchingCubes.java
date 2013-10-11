@@ -1,6 +1,8 @@
 package assignment3;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 import javax.vecmath.Point3f;
 
@@ -8,6 +10,7 @@ import meshes.Point2i;
 import meshes.WireframeMesh;
 import assignment2.HashOctree;
 import assignment2.HashOctreeCell;
+import assignment2.HashOctreeVertex;
 
 
 /**
@@ -26,6 +29,7 @@ public class MarchingCubes {
 	//per marchable cube values
 	private ArrayList<Float> val;
 	
+	private HashMap<Point2i, Integer> existingEdgeIndices;
 	
 	
 	
@@ -48,10 +52,11 @@ public class MarchingCubes {
 	public void primaryMC(ArrayList<Float> byVertex) {
 		this.val = byVertex;
 		this.result = new WireframeMesh();
+		this.existingEdgeIndices = new HashMap<Point2i, Integer>();
 		
-		for(HashOctreeCell v: tree.getLeaves())
+		for(HashOctreeCell c: tree.getLeaves())
 		{
-			pushCube(v);
+			pushCube(c);
 		}
 	}
 	
@@ -60,7 +65,25 @@ public class MarchingCubes {
 	 */
 	public void dualMC(ArrayList<Float> byVertex) {
 		this.result = new WireframeMesh();
+		this.existingEdgeIndices = new HashMap<Point2i, Integer>();
 		
+		this.val = new ArrayList<>(Collections.nCopies(tree.numberofVertices(), 0.f));
+		for(HashOctreeCell c: tree.getLeaves())
+		{
+			float avgVal = 0;
+			for(int i = 0b000; i <= 0b111; i++)
+			{
+				MarchableCube v = c.getCornerElement(i, tree);
+				avgVal += byVertex.get(v.getIndex()) / 8;
+			}
+			this.val.set(c.getIndex(), avgVal);
+		}
+		for(HashOctreeVertex v: tree.getVertices())
+		{
+			if(v.isOnBoundary()) continue;
+			
+			pushCube(v);
+		}
 	}
 	
 	/**
@@ -83,21 +106,31 @@ public class MarchingCubes {
 		for(int j = 0; j < 5; j++)
 		{
 			int[] indices = new int[3];
+			if(triangles[i].x == -1 || triangles[i].y == -1) continue;
 			for(int k = 0; k < 3; k++)
 			{
 				Point2i p = triangles[i++];
-				if(p.x == -1 || p.y == -1) continue;
-				MarchableCube v1 = n.getCornerElement(p.x, tree), v2 = n.getCornerElement(p.y, tree);
-				float split = val.get(v1.getIndex()) / (val.get(v1.getIndex()) - val.get(v2.getIndex()));
-				Point3f p1 = v1.getPosition(), p2 = v2.getPosition();
-				p1.scale(1 - split);
-				p2.scale(split);
-				p1.add(p2);
-				indices[k] = result.vertices.size();
-				result.vertices.add(p1);
+				indices[k] = pushEdge(p, n);
 			}
 			result.faces.add(indices);
 		}
+	}
+	
+	private int pushEdge(Point2i edge, MarchableCube n)
+	{
+		Point2i key = key(n, edge);
+		if(!existingEdgeIndices.containsKey(key))
+		{
+			existingEdgeIndices.put(key, existingEdgeIndices.size());
+			MarchableCube v1 = n.getCornerElement(edge.x, tree), v2 = n.getCornerElement(edge.y, tree);
+			float split = val.get(v1.getIndex()) / (val.get(v1.getIndex()) - val.get(v2.getIndex()));
+			Point3f p1 = v1.getPosition(), p2 = v2.getPosition();
+			p1.scale(1 - split);
+			p2.scale(split);
+			p1.add(p2);
+			result.vertices.add(p1);
+		}
+		return existingEdgeIndices.get(key);
 	}
 
 	
@@ -112,7 +145,7 @@ public class MarchingCubes {
 
 	/**
 	 * compute a key from the edge description e, that can be used to
-	 * uniquely identify the edge e of the cube n. See Assignment 3 Exerise 1-5
+	 * uniquely identify the edge e of the cube n. See Assignment 3 Exercise 1-5
 	 * @param n
 	 * @param e
 	 * @return

@@ -59,5 +59,8 @@ public class HashOctreeVertex implements MarchableCube {
 		return index;
 	}
 	
-	
+	public boolean isOnBoundary()
+	{
+		return MortonCodes.isVertexOnBoundary(code, MortonCodes.depth(code));
+	}
 }
