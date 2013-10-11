@@ -95,11 +95,11 @@ public class SCIPY {
 		/*execute the script*/
 		Runtime rt = Runtime.getRuntime();
 		Process pr = rt.exec("python ./python/doLeastSqr.py " +
-				"-i \"./python/temp/" + matrix_name + "ifile\" " +
-				"-j \"./python/temp/" + matrix_name + "jfile\" " +
-				"-b \"./python/temp/" + matrix_name + "bfile\" " +
-				"-v \"./python/temp/" + matrix_name + "vfile\" " +
-				"-x \"./python/temp/" + matrix_name + "xout\" ");
+				"-i ./python/temp/" + matrix_name + "ifile " +
+				"-j ./python/temp/" + matrix_name + "jfile " +
+				"-b ./python/temp/" + matrix_name + "bfile " +
+				"-v ./python/temp/" + matrix_name + "vfile " +
+				"-x ./python/temp/" + matrix_name + "xout ");
 		
 	    
 		try {
