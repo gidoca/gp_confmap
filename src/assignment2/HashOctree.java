@@ -395,7 +395,7 @@ public class HashOctree {
 		long nbrCode = MortonCodes.nbrCode(cell.code, cell.lvl, Obxyz);
 		while(cellMap.get(nbrCode) == null)
 		{
-			if(nbrCode == -1) return null;
+			if(nbrCode == 0) return null;
 			nbrCode = MortonCodes.parentCode(nbrCode);
 		}
 		return cellMap.get(nbrCode);
@@ -410,7 +410,7 @@ public class HashOctree {
 	 */
 	public HashOctreeCell getNbr_c2cMinus(HashOctreeCell cell, int Obxyz){
 		long nbrCode = MortonCodes.nbrCodeMinus(cell.code, cell.lvl, Obxyz);
-		if(nbrCode == -1) return null;
+		if(nbrCode == 0) return null;
 		while(cellMap.get(nbrCode) == null)
 		{
 			nbrCode = MortonCodes.parentCode(nbrCode);
@@ -431,11 +431,9 @@ public class HashOctree {
 	public HashOctreeVertex getNbr_v2v(HashOctreeVertex v, int nbr_0bxyz){
 		for(int l = v.maxLvl; l >= v.minLvl; l--)
 		{
-			int shift = (depth - l) * 3;
-			long nbr = MortonCodes.nbrCode(v.code >> shift, l, nbr_0bxyz);
-			if(nbr == -1) return null;
-			long shiftedNbr = nbr << shift;
-			HashOctreeVertex current = vertexMap.get(shiftedNbr);
+			long nbr = MortonCodes.nbrCode(v.code, l, nbr_0bxyz);
+			if(nbr == 0) return null;
+			HashOctreeVertex current = vertexMap.get(nbr);
 			if(current != null) return current;
 		}
 		return null;
@@ -451,11 +449,9 @@ public class HashOctree {
 	public HashOctreeVertex getNbr_v2vMinus(HashOctreeVertex v, int nbr_0bxyz){
 		for(int l = v.maxLvl; l >= v.minLvl; l--)
 		{
-			int shift = (depth - l) * 3;
-			long nbr = MortonCodes.nbrCodeMinus(v.code >> shift, l, nbr_0bxyz);
-			if(nbr == -1) return null;
-			long shiftedNbr = nbr << shift;
-			HashOctreeVertex current = vertexMap.get(shiftedNbr);
+			long nbr = MortonCodes.nbrCodeMinus(v.code, l, nbr_0bxyz);
+			if(nbr == 0) return null;
+			HashOctreeVertex current = vertexMap.get(nbr);
 			if(current != null) return current;
 		}
 		return null;

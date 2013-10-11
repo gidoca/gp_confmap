@@ -10,6 +10,10 @@ public class Point2i {
 		
 	}
 	
+	public Point2i() {
+		x = y = -1;
+	}
+
 	public int hashCode(){
 		return (x ^ ~y << 16) | (x ^ y) ;
 	}

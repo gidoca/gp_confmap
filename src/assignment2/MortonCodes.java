@@ -1,6 +1,7 @@
 package assignment2;
 
 
+
 /**
  * Implement the Morton Code manipulations here. 
  *
@@ -24,7 +25,7 @@ public class MortonCodes {
 	public static long parentCode(long code){
 		if(code == 1)
 		{
-			return -1;
+			return 0;
 		}
 		else
 		{
@@ -42,10 +43,12 @@ public class MortonCodes {
 	 */
 	public static long nbrCode(long code, int level, int Obxyz){
 		long out = 0;
+		int d = depth(code);
+		long diff = Obxyz << 3 * (d - level);
 		for(long mask: xyz_masks) {
-			out |= (((code | ~mask) + (Obxyz & mask)) & mask);
+			out |= (((code | ~mask) + (diff & mask)) & mask);
 		}
-		return overflowTest(out, level);
+		return overflowTest(out, d);
 	}
 
 	/**
@@ -58,10 +61,12 @@ public class MortonCodes {
 	 */	
 	public static long nbrCodeMinus(long code, int level, int Obxyz){
 		long out = 0;
+		int d = depth(code);
+		long diff = Obxyz << 3 * (d - level);
 		for(long mask: xyz_masks) {
-			out |= (((code & mask) - (Obxyz & mask)) & mask);
+			out |= (((code & mask) - (diff & mask)) & mask);
 		}
-		return overflowTest(out, level);
+		return overflowTest(out, d);
 	}
 	
 	
@@ -71,7 +76,7 @@ public class MortonCodes {
 	 * if the delimiter bit is untouched and is the highest bit set.
 	 * @param code
 	 * @param level
-	 * @return code if no overflow, -1 otherwhise
+	 * @return code if no overflow, 0 otherwhise
 	 */
 	public static long overflowTest(long code, int level){
 		if(isCellOnLevelXGrid(code, level))
@@ -80,7 +85,7 @@ public class MortonCodes {
 		}
 		else
 		{
-			return -1;
+			return 0;
 		}
 	}
 	
@@ -121,4 +126,20 @@ public class MortonCodes {
 		return is;
 	}
 	
+	public static long pad(long code, int level)
+	{
+		return code << 3 * depth(code);
+	}
+	
+	public static int depth(long code)
+	{
+		int i = 0;
+		if(code == 0) return -1;
+		while(code != 1)
+		{
+			 code >>= 3;
+			 i++;
+		}
+		return i;
+	}
 }

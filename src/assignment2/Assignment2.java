@@ -37,7 +37,7 @@ public class Assignment2 {
 		long nbr_plus_z =   0b1000101000101;
 		
 		long nbr_minus_x = 	0b1000101000000;
-		long nbr_minus_y =  -1; //invalid: the vertex lies on the boundary and an underflow should occur
+		long nbr_minus_y =  0; //invalid: the vertex lies on the boundary and an underflow should occur
 		long nbr_minus_z =  0b1000100001101;
 		
 		
@@ -52,7 +52,8 @@ public class Assignment2 {
 		assert(MortonCodes.nbrCode(hash, 4, 0b100) == nbr_plus_x);
 		assert(MortonCodes.nbrCode(hash, 4, 0b010) == nbr_plus_y);
 		assert(MortonCodes.nbrCode(hash, 4, 0b001) == nbr_plus_z);
-		assert(MortonCodes.nbrCode(0b1111111, 2, 0b100) == -1);
+		assert(MortonCodes.nbrCode(0b1111111, 2, 0b100) == 0);
+		assert(MortonCodes.nbrCode(0b1000101000, 2, 0b010) == 0b1000111000);
 		assert(MortonCodes.nbrCodeMinus(hash, 4, 0b100) == nbr_minus_x);
 		assert(MortonCodes.nbrCodeMinus(hash, 4, 0b010) == nbr_minus_y);
 		assert(MortonCodes.nbrCodeMinus(hash, 4, 0b001) == nbr_minus_z);
@@ -99,7 +100,30 @@ public class Assignment2 {
 					HashOctreeCell p = t.getNbr_c2c(v, Obxyz);
 					if(p == null)
 					{
-						return new float[]{0, 0, 0};
+						return new float[]{v.center.x, v.center.y, v.center.z};
+					}
+					else
+					{
+						return new float[]{p.center.x, p.center.y, p.center.z};
+					}
+				}
+			});
+		}
+		GLHashtree glotNM = new GLHashtree(ot);
+		glotNM.configurePreferredShader("shaders/octree_nbr.vert", "shaders/octree.frag", "shaders/octree_nbr.geom");
+		for(int i = 0b001; i != 0b1000; i <<= 1)
+		{
+			final int Obxyz = i;
+			String coord = i == 0b100 ? "x" :
+				           i == 0b010 ? "y" :
+				                        "z";
+			glotNM.addElement(3, "nbr_pos_" + coord, new HashOctreeCellAttribute() {
+				@Override
+				public float[] getAttribute(HashOctreeCell v, HashOctree t) {
+					HashOctreeCell p = t.getNbr_c2cMinus(v, Obxyz);
+					if(p == null)
+					{
+						return new float[]{v.center.x, v.center.y, v.center.z};
 					}
 					else
 					{
@@ -160,6 +184,7 @@ public class Assignment2 {
 		disp.addToDisplay(glot);
 		disp.addToDisplay(glotP);
 		disp.addToDisplay(glotN);
+		disp.addToDisplay(glotNM);
 		disp.addToDisplay(glotNV);
 		disp.addToDisplay(glotNVM);
 	}

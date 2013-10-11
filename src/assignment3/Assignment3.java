@@ -2,6 +2,7 @@ package assignment3;
 
 import glWrapper.GLHashtree;
 import glWrapper.GLHashtree_Vertices;
+import glWrapper.GLWireframeMesh;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,7 +36,8 @@ public class Assignment3 {
 		//and sample per vertex function values.
 		ArrayList<Float> x = sphericalFunction(tree);
 		
-		//Do your magic here...
+		MarchingCubes mc = new MarchingCubes(tree);
+		mc.primaryMC(x);
 		
 		
 		//And show off...
@@ -56,6 +58,12 @@ public class Assignment3 {
 		gltree.configurePreferredShader("shaders/octree_zro.vert", 
 				"shaders/octree_zro.frag", "shaders/octree_zro.geom");
 		d.addToDisplay(gltree);
+		
+		GLWireframeMesh glwm = new GLWireframeMesh(mc.getResult());
+		glwm.configurePreferredShader("shaders/trimesh_flat.vert", 
+				"shaders/trimesh_flat.frag", 
+				"shaders/trimesh_flat.geom");
+		d.addToDisplay(glwm);
 	}
 	
 	

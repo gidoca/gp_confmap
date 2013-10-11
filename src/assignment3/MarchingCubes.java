@@ -2,9 +2,12 @@ package assignment3;
 
 import java.util.ArrayList;
 
+import javax.vecmath.Point3f;
+
 import meshes.Point2i;
 import meshes.WireframeMesh;
 import assignment2.HashOctree;
+import assignment2.HashOctreeCell;
 
 
 /**
@@ -46,16 +49,18 @@ public class MarchingCubes {
 		this.val = byVertex;
 		this.result = new WireframeMesh();
 		
-		//do your stuff...
-		
+		for(HashOctreeCell v: tree.getLeaves())
+		{
+			pushCube(v);
+		}
 	}
 	
 	/**
 	 * Perform dual marchingCubes on the tree
 	 */
 	public void dualMC(ArrayList<Float> byVertex) {
+		this.result = new WireframeMesh();
 		
-		//do your stuff
 	}
 	
 	/**
@@ -63,10 +68,36 @@ public class MarchingCubes {
 	 * @param n
 	 */
 	private void pushCube(MarchableCube n){
-		
-		//do your stuff
-		
-		
+		float[] vVal = new float[8];
+		Point2i[] triangles = new Point2i[15];
+		for(int i = 0b000; i <= 0b111; i++)
+		{
+			vVal[i] = val.get(n.getCornerElement(i, tree).getIndex());
+		}
+		for(int i = 0; i < 15; i++)
+		{
+			triangles[i] = new Point2i();
+		}
+		MCTable.resolve(vVal, triangles);
+		int i = 0;
+		for(int j = 0; j < 5; j++)
+		{
+			int[] indices = new int[3];
+			for(int k = 0; k < 3; k++)
+			{
+				Point2i p = triangles[i++];
+				if(p.x == -1 || p.y == -1) continue;
+				MarchableCube v1 = n.getCornerElement(p.x, tree), v2 = n.getCornerElement(p.y, tree);
+				float split = val.get(v1.getIndex()) / (val.get(v1.getIndex()) - val.get(v2.getIndex()));
+				Point3f p1 = v1.getPosition(), p2 = v2.getPosition();
+				p1.scale(1 - split);
+				p2.scale(split);
+				p1.add(p2);
+				indices[k] = result.vertices.size();
+				result.vertices.add(p1);
+			}
+			result.faces.add(indices);
+		}
 	}
 
 	

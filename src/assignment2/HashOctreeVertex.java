@@ -2,13 +2,15 @@ package assignment2;
 
 import javax.vecmath.Point3f;
 
+import assignment3.MarchableCube;
+
 
 /**
  * 
  * @author Alf
  *
  */
-public class HashOctreeVertex {
+public class HashOctreeVertex implements MarchableCube {
 	/** The morton code of this vertex*/
 	public long code;
 	/** Its position*/
@@ -28,7 +30,7 @@ public class HashOctreeVertex {
 	 * Initialize a vertex with dummy values
 	 */
 	public HashOctreeVertex() {
-		code = -1; //illegal
+		code = 0; //illegal
 		maxLvl = -1; //illegal
 		minLvl = -1; //illegal
 		position = new Point3f();
@@ -40,6 +42,21 @@ public class HashOctreeVertex {
 			return ((HashOctreeVertex)o).code == this.code;
 		}
 		return false;
+	}
+
+	@Override
+	public Point3f getPosition() {
+		return new Point3f(position);
+	}
+
+	@Override
+	public MarchableCube getCornerElement(int Obxyz, HashOctree tree) {
+		return tree.getNbr_v2c(this, Obxyz);
+	}
+
+	@Override
+	public int getIndex() {
+		return index;
 	}
 	
 	
