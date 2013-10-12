@@ -128,9 +128,7 @@ public class MarchingCubes {
 			MarchableCube v1 = n.getCornerElement(edge.x, tree), v2 = n.getCornerElement(edge.y, tree);
 			float split = val.get(v1.getIndex()) / (val.get(v1.getIndex()) - val.get(v2.getIndex()));
 			Point3f p1 = v1.getPosition(), p2 = v2.getPosition();
-			p1.scale(1 - split);
-			p2.scale(split);
-			p1.add(p2);
+			p1.interpolate(p2, split);
 			result.vertices.add(p1);
 		}
 		return existingEdgeIndices.get(key);

@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
 
+import meshes.HalfEdge;
 import meshes.HalfEdgeStructure;
 import meshes.PointCloud;
+import meshes.Vertex;
 import meshes.exception.DanglingTriangleException;
 import meshes.exception.MeshNotOrientedException;
 import openGL.MyDisplay;
@@ -26,9 +28,9 @@ public class Assignment3 {
 	public static void main(String[] args) throws IOException{
 		
 		
-//		marchingCubesDemo();
+		marchingCubesDemo();
 		
-		energyTest();
+//		energyTest();
 			
 	}
 	
@@ -85,6 +87,11 @@ public class Assignment3 {
 		} catch (MeshNotOrientedException | DanglingTriangleException e) {
 			e.printStackTrace();
 			return;
+		}
+		// Test if watertight
+		for(HalfEdge e: mesh.getHalfEdges())
+		{
+			assert(!e.isOnBorder());
 		}
 		AvgSmoother smoother = new AvgSmoother(mesh);
 		smoother.apply();
