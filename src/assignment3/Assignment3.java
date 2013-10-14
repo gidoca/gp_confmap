@@ -14,7 +14,6 @@ import javax.vecmath.Vector3f;
 import meshes.HalfEdge;
 import meshes.HalfEdgeStructure;
 import meshes.PointCloud;
-import meshes.Vertex;
 import meshes.exception.DanglingTriangleException;
 import meshes.exception.MeshNotOrientedException;
 import meshes.reader.ObjReader;
@@ -38,9 +37,9 @@ public class Assignment3 {
 //		marchingCubesDemo(pc, x, tree);
 		
 		PointCloud pc2 = ObjReader.readAsPointCloud("./objs/teapot.obj", true);
-		HashOctree tree2 = new HashOctree(pc2, 6, 7, 1.2f);
+		HashOctree tree2 = new HashOctree(pc2, 8, 1, 1f);
 		ArrayList<Float> x2 = new ArrayList<>();
-		LinearSystem s = SSDMatrices.ssdSystem(tree2, pc2, 1, 1, 1);
+		LinearSystem s = SSDMatrices.ssdSystem(tree2, pc2, 1, 1f, 1);
 		SCIPY.solve(s, "dragon", x2);
 		marchingCubesDemo(pc2, x2, tree2);
 		
@@ -100,7 +99,7 @@ public class Assignment3 {
 		// Test if watertight
 		for(HalfEdge e: mesh.getHalfEdges())
 		{
-			assert(!e.isOnBorder());
+//			assert(!e.isOnBorder());
 		}
 		AvgSmoother smoother = new AvgSmoother(mesh);
 		smoother.apply();

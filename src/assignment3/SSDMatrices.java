@@ -142,23 +142,27 @@ public class SSDMatrices {
 			float lambda0,
 			float lambda1,
 			float lambda2){
-		
+		int n = pc.points.size();
 				
 		LinearSystem system = new LinearSystem();
 		system.mat = new CSRMatrix(0, tree.numberofVertices());
 		system.b = new ArrayList<Float>();
 		
 		CSRMatrix d0 = D0Term(tree, pc);
-		system.mat.append(d0, lambda0);
+		system.mat.append(d0, (float) Math.sqrt(lambda0 / n));
 		system.b.addAll(Collections.nCopies(d0.nRows, 0.f));
 		
 		ArrayList<Float> d1Rhs = new ArrayList<Float>();
 		CSRMatrix d1 = D1Term(tree, pc, d1Rhs);
-		system.mat.append(d1, lambda1);
+		system.mat.append(d1, (float) Math.sqrt(lambda1 / n));
+		for(int i = 0; i < d1Rhs.size(); i++)
+		{
+			d1Rhs.set(i, (float) (d1Rhs.get(i) * Math.sqrt(lambda1 / n)));
+		}
 		system.b.addAll(d1Rhs);
 		
 		CSRMatrix r = RTerm(tree);
-		system.mat.append(r, lambda2);
+		system.mat.append(r, (float) Math.sqrt(lambda2 / n));
 		system.b.addAll(Collections.nCopies(r.nRows, 0.f));
 		return system;
 	}
