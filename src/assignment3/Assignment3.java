@@ -17,8 +17,11 @@ import meshes.PointCloud;
 import meshes.Vertex;
 import meshes.exception.DanglingTriangleException;
 import meshes.exception.MeshNotOrientedException;
+import meshes.reader.ObjReader;
 import openGL.MyDisplay;
 import sparse.CSRMatrix;
+import sparse.LinearSystem;
+import sparse.SCIPY;
 import algorithms.AvgSmoother;
 import assignment2.HashOctree;
 import assignment2.HashOctreeVertex;
@@ -27,22 +30,28 @@ public class Assignment3 {
 	
 	public static void main(String[] args) throws IOException{
 		
+		PointCloud pc = nonUniformPointCloud(15);
+		HashOctree tree = new HashOctree( 
+				pc,
+				6,7,1.2f);
+		ArrayList<Float> x = sphericalFunction(tree);
+//		marchingCubesDemo(pc, x, tree);
 		
-//		marchingCubesDemo();
+		PointCloud pc2 = ObjReader.readAsPointCloud("./objs/teapot.obj", true);
+		HashOctree tree2 = new HashOctree(pc2, 6, 7, 1.2f);
+		ArrayList<Float> x2 = new ArrayList<>();
+		LinearSystem s = SSDMatrices.ssdSystem(tree2, pc2, 1, 1, 1);
+		SCIPY.solve(s, "dragon", x2);
+		marchingCubesDemo(pc2, x2, tree2);
 		
 		energyTest();
 			
 	}
 	
 	
-	public static void marchingCubesDemo(){
+	public static void marchingCubesDemo(PointCloud pc, ArrayList<Float> x, HashOctree tree){
 		
 		//Test Data: create an octree
-		HashOctree tree = new HashOctree( 
-				nonUniformPointCloud(15),
-				6,7,1.2f);
-		//and sample per vertex function values.
-		ArrayList<Float> x = sphericalFunction(tree);
 		
 		
 		//And show off...
@@ -131,7 +140,7 @@ public class Assignment3 {
 			linearF.add(v.getPosition().x + v.getPosition().y + v.getPosition().z);
 		}
 		out = new ArrayList<>();
-		CSRMatrix d1 = SSDMatrices.D1Term(tree, cloud);
+		CSRMatrix d1 = SSDMatrices.D1Term(tree, cloud, new ArrayList<Float>());
 		d1.mult(linearF, out);
 		sqrdiff = 0;
 		for(int i = 0; i < out.size(); i++)

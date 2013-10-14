@@ -1,5 +1,8 @@
 package assignment3;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
 
@@ -89,12 +92,14 @@ public class SSDMatrices {
 	 * Three consecutive rows belong to the same gradient, the gradient in the cell
 	 * of pointcloud.point[row/3]; 
 	 */
-	public static CSRMatrix D1Term(HashOctree tree, PointCloud cloud) {
+	public static CSRMatrix D1Term(HashOctree tree, PointCloud cloud, ArrayList<Float> rhs) {
 		CSRMatrix out = new CSRMatrix(3 * cloud.points.size(), tree.numberofVertices());
 		for(int i = 0; i < cloud.points.size(); i++)
 		{
 			Point3f p = cloud.points.get(i);
 			HashOctreeCell cell = tree.getCell(p);
+			float[] normal = new float[3];
+			cloud.normals.get(i).get(normal);
 			for(int j = 0; j < 3; j++)
 			{
 				int axis = 0b1 << j;
@@ -105,6 +110,7 @@ public class SSDMatrices {
 					HashOctreeVertex v2 = cell.getCornerElement((int)k | axis, tree);
 					out.set(3 * i + j, v2.getIndex(), 1.f / (4 * cell.side));
 				}
+				rhs.add(normal[j]);
 			}
 		}
 		return out;
@@ -113,10 +119,8 @@ public class SSDMatrices {
 	
 	
 	public static CSRMatrix RTerm(HashOctree tree){
-		
-		//Do your stuff
-		
-		return null;
+		//TODO implement
+		return new CSRMatrix(0, tree.numberofVertices());
 	}
 
 	
@@ -141,8 +145,21 @@ public class SSDMatrices {
 		
 				
 		LinearSystem system = new LinearSystem();
-		system.mat = null;
-		system.b = null;
+		system.mat = new CSRMatrix(0, tree.numberofVertices());
+		system.b = new ArrayList<Float>();
+		
+		CSRMatrix d0 = D0Term(tree, pc);
+		system.mat.append(d0, lambda0);
+		system.b.addAll(Collections.nCopies(d0.nRows, 0.f));
+		
+		ArrayList<Float> d1Rhs = new ArrayList<Float>();
+		CSRMatrix d1 = D1Term(tree, pc, d1Rhs);
+		system.mat.append(d1, lambda1);
+		system.b.addAll(d1Rhs);
+		
+		CSRMatrix r = RTerm(tree);
+		system.mat.append(r, lambda2);
+		system.b.addAll(Collections.nCopies(r.nRows, 0.f));
 		return system;
 	}
 
