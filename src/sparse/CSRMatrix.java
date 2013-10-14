@@ -45,6 +45,11 @@ public class CSRMatrix {
 	
 	public void set(int row, int col, float val)
 	{
+		if(val == 0)
+		{
+			reset(row, col);
+			return;
+		}
 		col_val colval = getColVal(row, col);
 		if(colval == null)
 		{
@@ -52,6 +57,14 @@ public class CSRMatrix {
 			rows.get(row).add(colval);
 		}
 		colval.val = val;
+	}
+	
+	public void reset(int row, int col)
+	{
+		for(col_val v: rows.get(row))
+		{
+			if(v.col == col) rows.remove(v);
+		}
 	}
 	
 	private col_val getColVal(int row, int col)

@@ -28,9 +28,9 @@ public class Assignment3 {
 	public static void main(String[] args) throws IOException{
 		
 		
-		marchingCubesDemo();
+//		marchingCubesDemo();
 		
-//		energyTest();
+		energyTest();
 			
 	}
 	
@@ -124,6 +124,23 @@ public class Assignment3 {
 			sqrdiff += diff * diff;
 		}
 		System.out.println(sqrdiff / out.size());
+		
+		ArrayList<Float> linearF = new ArrayList<>();
+		for(HashOctreeVertex v: tree.getVertices())
+		{
+			linearF.add(v.getPosition().x + v.getPosition().y + v.getPosition().z);
+		}
+		out = new ArrayList<>();
+		CSRMatrix d1 = SSDMatrices.D1Term(tree, cloud);
+		d1.mult(linearF, out);
+		sqrdiff = 0;
+		for(int i = 0; i < out.size(); i++)
+		{
+			float expected = 1;
+			float diff = expected - out.get(i);
+			sqrdiff += diff * diff;
+		}
+		System.out.println(sqrdiff);
 	}
 	
 	

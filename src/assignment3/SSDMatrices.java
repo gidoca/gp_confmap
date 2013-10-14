@@ -65,7 +65,7 @@ public class SSDMatrices {
 	 */
 	public static CSRMatrix D0Term(HashOctree tree, PointCloud cloud){
 		CSRMatrix out = new CSRMatrix(cloud.points.size(), tree.numberofVertices());
-		for(int i = 0; i < cloud.points.size(); i++)
+		for(int i = 0; i < out.nRows; i++)
 		{
 			Point3f p = cloud.points.get(i);
 			HashOctreeCell cell = tree.getCell(p);
@@ -90,10 +90,24 @@ public class SSDMatrices {
 	 * of pointcloud.point[row/3]; 
 	 */
 	public static CSRMatrix D1Term(HashOctree tree, PointCloud cloud) {
-		
-		//Do your stuff
-		
-		return null;
+		CSRMatrix out = new CSRMatrix(3 * cloud.points.size(), tree.numberofVertices());
+		for(int i = 0; i < cloud.points.size(); i++)
+		{
+			Point3f p = cloud.points.get(i);
+			HashOctreeCell cell = tree.getCell(p);
+			for(int j = 0; j < 3; j++)
+			{
+				int axis = 0b1 << j;
+				for(long k = 0b000; k <= 0b111; k = ((k | axis) + 1) & ~axis)
+				{
+					HashOctreeVertex v1 = cell.getCornerElement((int)k, tree);
+					out.set(3 * i + j, v1.getIndex(), -1.f / (4 * cell.side));
+					HashOctreeVertex v2 = cell.getCornerElement((int)k | axis, tree);
+					out.set(3 * i + j, v2.getIndex(), 1.f / (4 * cell.side));
+				}
+			}
+		}
+		return out;
 	}
 	
 	
