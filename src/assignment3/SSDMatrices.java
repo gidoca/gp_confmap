@@ -105,6 +105,7 @@ public class SSDMatrices {
 				int axis = 0b1 << j;
 				for(long k = 0b000; k <= 0b111; k = ((k | axis) + 1) & ~axis)
 				{
+					assert((k & axis) == 0);
 					HashOctreeVertex v1 = cell.getCornerElement((int)k, tree);
 					out.set(3 * i + j, v1.getIndex(), -1.f / (4 * cell.side));
 					HashOctreeVertex v2 = cell.getCornerElement((int)k | axis, tree);
@@ -143,6 +144,7 @@ public class SSDMatrices {
 			float lambda1,
 			float lambda2){
 		int n = pc.points.size();
+		pc.normalizeNormals();
 				
 		LinearSystem system = new LinearSystem();
 		system.mat = new CSRMatrix(0, tree.numberofVertices());
