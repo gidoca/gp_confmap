@@ -3,6 +3,7 @@ package assignment3;
 import glWrapper.GLHalfEdgeStructure;
 import glWrapper.GLHashtree;
 import glWrapper.GLHashtree_Vertices;
+import glWrapper.GLPointCloud;
 import glWrapper.GLWireframeMesh;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ import meshes.PointCloud;
 import meshes.exception.DanglingTriangleException;
 import meshes.exception.MeshNotOrientedException;
 import meshes.reader.ObjReader;
+import meshes.reader.PlyReader;
 import openGL.MyDisplay;
 import sparse.CSRMatrix;
 import sparse.LinearSystem;
@@ -34,12 +36,14 @@ public class Assignment3 {
 				pc,
 				6,7,1.2f);
 		ArrayList<Float> x = sphericalFunction(tree);
-//		marchingCubesDemo(pc, x, tree);
+//		marchingCubesDemo(pc, x, tree, true);
 		
-		PointCloud pc2 = ObjReader.readAsPointCloud("./objs/teapot.obj", true);
-		HashOctree tree2 = new HashOctree(pc2, 8, 1, 1f);
+		PointCloud pc2 = ObjReader.readAsPointCloud("./objs/dragon_withNormals.obj", true);
+//		PointCloud pc2 = spherePointCloud(20);
+		HashOctree tree2 = new HashOctree(pc2, 10, 1, 1.1f);
+		tree2.refineTree(2);
 		ArrayList<Float> x2 = new ArrayList<>();
-		LinearSystem s = SSDMatrices.ssdSystem(tree2, pc2, 1, 1f, 1);
+		LinearSystem s = SSDMatrices.ssdSystem(tree2, pc2, 1f, 0.01f, 11f);
 		SCIPY.solve(s, "dragon", x2);
 		marchingCubesDemo(pc2, x2, tree2);
 		
@@ -47,8 +51,13 @@ public class Assignment3 {
 			
 	}
 	
+	public static void marchingCubesDemo(PointCloud pc, ArrayList<Float> x, HashOctree tree)
+	{
+		marchingCubesDemo(pc, x, tree, false);
+	}
 	
-	public static void marchingCubesDemo(PointCloud pc, ArrayList<Float> x, HashOctree tree){
+	
+	public static void marchingCubesDemo(PointCloud pc, ArrayList<Float> x, HashOctree tree, boolean testWatertight){
 		
 		//Test Data: create an octree
 		
@@ -63,6 +72,11 @@ public class Assignment3 {
 		gl_v.configurePreferredShader("shaders/func.vert", 
 				"shaders/func.frag", null);
 		d.addToDisplay(gl_v);
+
+		//visualization of the per vertex values (blue = negative, 
+		//red = positive, green = 0);
+		GLPointCloud gl_pc = new GLPointCloud(pc);
+		d.addToDisplay(gl_pc);
 		
 		//discrete approximation of the zero level set: render all
 		//tree cubes that have negative values.
@@ -99,15 +113,15 @@ public class Assignment3 {
 		// Test if watertight
 		for(HalfEdge e: mesh.getHalfEdges())
 		{
-//			assert(!e.isOnBorder());
+			if(testWatertight) assert(!e.isOnBorder());
 		}
-		AvgSmoother smoother = new AvgSmoother(mesh);
+		/*AvgSmoother smoother = new AvgSmoother(mesh);
 		smoother.apply();
 		GLHalfEdgeStructure glsm = new GLHalfEdgeStructure(mesh);
 		glsm.configurePreferredShader("shaders/trimesh_flat.vert", 
 				"shaders/trimesh_flat.frag", 
 				"shaders/trimesh_flat.geom");
-		d.addToDisplay(glsm);
+		d.addToDisplay(glsm);*/
 	}
 	
 	public static void energyTest()
@@ -129,9 +143,9 @@ public class Assignment3 {
 		for(int i = 0; i < out.size(); i++)
 		{
 			float diff = cloud.points.get(i).x - out.get(i);
-			sqrdiff += diff * diff;
+			sqrdiff += diff * diff / out.size();
 		}
-		System.out.println(sqrdiff / out.size());
+		System.out.println(Math.sqrt(sqrdiff));
 		
 		ArrayList<Float> linearF = new ArrayList<>();
 		for(HashOctreeVertex v: tree.getVertices())
@@ -146,10 +160,22 @@ public class Assignment3 {
 		{
 			float expected = 1;
 			float diff = expected - out.get(i);
-			sqrdiff += diff * diff;
+			sqrdiff += diff * diff / out.size();
 		}
-		System.out.println(sqrdiff);
-	}
+		System.out.println(Math.sqrt(sqrdiff));
+
+		out = new ArrayList<>();
+		CSRMatrix r = SSDMatrices.RTerm(tree);
+		r.mult(linearF, out);
+		sqrdiff = 0;
+		for(int i = 0; i < out.size(); i++)
+		{
+			float expected = 0;
+			float diff = expected - out.get(i);
+			sqrdiff += diff * diff / out.size();
+		}
+		System.out.println(Math.sqrt(sqrdiff));
+}
 	
 	
 	/**
@@ -203,5 +229,29 @@ public class Assignment3 {
 		
 		return pc;
 	}
-	
+
+	/**
+	 * generating a pointcloud
+	 * @param max
+	 * @return
+	 */
+	private static PointCloud spherePointCloud(int max){
+		PointCloud pc = new PointCloud();
+		float delta = 1.f/max;
+		for(float phi = 0; phi < 2* Math.PI; phi+= delta){
+			for(float psi = (float) -Math.PI/2; psi < Math.PI/2; psi+= delta){
+					
+					pc.points.add(new Point3f((float)(Math.cos(phi) * Math.cos(psi)),
+							(float)(Math.sin(phi) * Math.cos(psi)),
+							(float)(Math.sin(psi))));
+					
+					pc.normals.add(new Vector3f((float)(Math.cos(phi) * Math.cos(psi)),
+							(float)(Math.sin(phi) * Math.cos(psi)),
+							(float)(Math.sin(psi))));
+			}
+
+		}
+		
+		return pc;
+	}
 }

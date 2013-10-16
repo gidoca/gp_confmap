@@ -56,6 +56,11 @@ public class CSRMatrix {
 		colval.val = val;
 	}
 	
+	public void setLastRow(int col, float val)
+	{
+		set(nRows - 1, col, val);
+	}
+	
 	public void reset(int row, int col)
 	{
 		for(col_val v: rows.get(row))

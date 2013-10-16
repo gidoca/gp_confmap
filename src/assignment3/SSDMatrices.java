@@ -102,14 +102,12 @@ public class SSDMatrices {
 			cloud.normals.get(i).get(normal);
 			for(int j = 0; j < 3; j++)
 			{
-				int axis = 0b1 << j;
-				for(long k = 0b000; k <= 0b111; k = ((k | axis) + 1) & ~axis)
+				int axis = 0b100 >> j;
+				for(long k = 0b000; k <= 0b111; k++)
 				{
-					assert((k & axis) == 0);
+					int sign = ((k & axis)!= 0)? 1 : -1;
 					HashOctreeVertex v1 = cell.getCornerElement((int)k, tree);
-					out.set(3 * i + j, v1.getIndex(), -1.f / (4 * cell.side));
-					HashOctreeVertex v2 = cell.getCornerElement((int)k | axis, tree);
-					out.set(3 * i + j, v2.getIndex(), 1.f / (4 * cell.side));
+					out.set(3 * i + j, v1.getIndex(), sign / (4 * cell.side));
 				}
 				rhs.add(normal[j]);
 			}
@@ -120,8 +118,29 @@ public class SSDMatrices {
 	
 	
 	public static CSRMatrix RTerm(HashOctree tree){
-		//TODO implement
-		return new CSRMatrix(0, tree.numberofVertices());
+		CSRMatrix out = new CSRMatrix(3 * tree.numberofVertices(), tree.numberofVertices());
+		float scale = 0;
+		for(int i = 0; i < tree.numberofVertices(); i++)
+		{
+			HashOctreeVertex v = tree.getVertexbyIndex(i);
+			for(int j = 0; j < 3; j++)
+			{
+				int axis = 0b1 << j;
+				HashOctreeVertex negN = tree.getNbr_v2vMinus(v, axis);
+				HashOctreeVertex posN = tree.getNbr_v2v(v, axis);
+				if(posN == null || negN == null) continue;
+				float dist_ij = v.getPosition().distance(negN.getPosition());
+				float dist_jk = v.getPosition().distance(posN.getPosition());
+				float dist_ik = dist_ij + dist_jk;
+				out.addRow();
+				out.setLastRow(v.index, 1);
+				out.setLastRow(posN.index, -dist_ij / dist_ik);
+				out.setLastRow(negN.index, -dist_jk / dist_ik);
+				scale += dist_ij * dist_jk;
+			}
+		}
+		out.scale(1.f/scale);
+		return out;
 	}
 
 	
@@ -163,9 +182,11 @@ public class SSDMatrices {
 		}
 		system.b.addAll(d1Rhs);
 		
+
 		CSRMatrix r = RTerm(tree);
-		system.mat.append(r, (float) Math.sqrt(lambda2 / n));
+		system.mat.append(r, (float) Math.sqrt(lambda2));
 		system.b.addAll(Collections.nCopies(r.nRows, 0.f));
+		
 		return system;
 	}
 
