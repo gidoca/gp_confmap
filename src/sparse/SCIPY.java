@@ -94,7 +94,7 @@ public class SCIPY {
 		
 		/*execute the script*/
 		Runtime rt = Runtime.getRuntime();
-		Process pr = rt.exec("python ./python/doLeastSqr.py " +
+		Process pr = rt.exec("python2 ./python/doLeastSqr.py " +
 				"-i ./python/temp/" + matrix_name + "ifile " +
 				"-j ./python/temp/" + matrix_name + "jfile " +
 				"-b ./python/temp/" + matrix_name + "bfile " +

@@ -40,7 +40,7 @@ public class Assignment3 {
 		
 		PointCloud pc2 = ObjReader.readAsPointCloud("./objs/dragon_withNormals.obj", true);
 //		PointCloud pc2 = spherePointCloud(20);
-		HashOctree tree2 = new HashOctree(pc2, 10, 1, 1.1f);
+		HashOctree tree2 = new HashOctree(pc2, 7, 1, 1.1f);
 		tree2.refineTree(2);
 		ArrayList<Float> x2 = new ArrayList<>();
 		LinearSystem s = SSDMatrices.ssdSystem(tree2, pc2, 1f, 0.01f, 11f);
