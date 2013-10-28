@@ -112,7 +112,7 @@ public class Vertex extends HEElement{
 		return out.length() / (4.f * mixedArea());
 	}
 	
-	private float mixedArea()
+	public float mixedArea()
 	{
 		float out = 0;
 		for(HalfEdge e: Iter.ate(iteratorVE()))

@@ -31,12 +31,12 @@ public class Assignment3 {
 	
 	public static void main(String[] args) throws IOException{
 		
-		PointCloud pc = nonUniformPointCloud(15);
+		/*PointCloud pc = nonUniformPointCloud(15);
 		HashOctree tree = new HashOctree( 
 				pc,
 				6,7,1.2f);
 		ArrayList<Float> x = sphericalFunction(tree);
-//		marchingCubesDemo(pc, x, tree, true);
+		marchingCubesDemo(pc, x, tree, true);*/
 		
 		PointCloud pc2 = ObjReader.readAsPointCloud("./objs/dragon_withNormals.obj", true);
 //		PointCloud pc2 = spherePointCloud(20);

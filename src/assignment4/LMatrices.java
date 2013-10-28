@@ -1,8 +1,8 @@
 package assignment4;
 
+import helper.Iter;
+
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 
 import javax.vecmath.Vector3f;
 
@@ -10,7 +10,6 @@ import meshes.HalfEdge;
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
 import sparse.CSRMatrix;
-import sparse.CSRMatrix.col_val;
 
 /**
  * Methods to create different flavours of the cotangent and uniform laplacian.
@@ -25,7 +24,18 @@ public class LMatrices {
 	 * @return
 	 */
 	public static CSRMatrix uniformLaplacian(HalfEdgeStructure hs){
-		return null;
+		CSRMatrix out = new CSRMatrix(0, hs.getVertices().size());
+		for(Vertex v: hs.getVertices())
+		{
+			out.addRow();
+			out.setLastRow(v.index, 1);
+			float invValence = 1.f / v.getValence();
+			for(Vertex n: Iter.ate(v.iteratorVV()))
+			{
+				out.setLastRow(n.index, -invValence);
+			}
+		}
+		return out;
 	}
 	
 	/**
@@ -34,7 +44,26 @@ public class LMatrices {
 	 * @return
 	 */
 	public static CSRMatrix mixedCotanLaplacian(HalfEdgeStructure hs){
-		return null;
+		CSRMatrix out = new CSRMatrix(0, hs.getVertices().size());
+		for(Vertex v: hs.getVertices())
+		{
+			out.addRow();
+			float sumWeights = 0;
+			for(HalfEdge e: Iter.ate(v.iteratorVE()))
+			{
+				Vertex n = e.start();
+				float a1 = e.getNext().getIncidentAngle();
+				float cotA1 = (float) (1.f / Math.tan(a1));
+				float a2 = e.getOpposite().getNext().getIncidentAngle();
+				float cotA2 = (float) (1.f / Math.tan(a2));
+				float weight = (cotA1 + cotA2) / (2 * v.mixedArea());
+//				weight = (float) Math.max(weight, 1e-2);
+				sumWeights += weight;
+				out.setLastRow(n.index, -weight);
+			}
+			out.setLastRow(v.index, sumWeights);
+		}
+		return out;
 	}
 	
 	/**

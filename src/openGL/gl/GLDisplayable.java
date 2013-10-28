@@ -1,6 +1,9 @@
 package openGL.gl;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+
+import javax.vecmath.Vector3f;
 
 import openGL.objects.Transformation;
 
@@ -147,6 +150,19 @@ public abstract class GLDisplayable {
 							+ "No elements for " + s.name()
 							+ " have been added so far.");
 		}
+	}
+	
+	public void addElement(ArrayList<Vector3f> vs, Semantic s, String name)
+	{
+		float[] f = new float[3 * vs.size()];
+		int i = 0;
+		for(Vector3f v: vs)
+		{
+			f[i++] = v.x;
+			f[i++] = v.y;
+			f[i++] = v.z;
+		}
+		addElement(f, s, 3, name);
 	}
 
 	public void addIndices(int[] indices) {

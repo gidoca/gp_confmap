@@ -3,6 +3,7 @@ package sparse;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -225,7 +226,7 @@ public class CSRMatrix {
 	 * @param other
 	 * @param result
 	 */
-	public void mult(ArrayList<Float> other, ArrayList<Float> result){
+	public void mult(List<Float> other, ArrayList<Float> result){
 		assert(other.size() == nCols);
 		result.clear();
 		result.ensureCapacity(nRows);
