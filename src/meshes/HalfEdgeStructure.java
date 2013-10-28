@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import javax.vecmath.Point3f;
+import javax.vecmath.Vector3f;
 
 import meshes.exception.DanglingTriangleException;
 import meshes.exception.MeshNotOrientedException;
@@ -75,6 +76,22 @@ public class HalfEdgeStructure {
 	 */
 	public Iterator<Face> iteratorF(){
 		return faces.iterator();
+	}
+	
+	public float getVolume()
+	{
+		float out = 0;
+		for(Face f: getFaces())
+		{
+			Iterator<Vertex> vertexIt = f.iteratorFV();
+			Vector3f p1 = new Vector3f(vertexIt.next().getPos());
+			Vector3f p2 = new Vector3f(vertexIt.next().getPos());
+			Vector3f p3 = new Vector3f(vertexIt.next().getPos());
+			Vector3f p2CrossP3 = new Vector3f();
+			p2CrossP3.cross(p2, p3);
+			out += p1.dot(p2CrossP3) / 6;
+		}
+		return out;
 	}
 	
 	

@@ -97,4 +97,10 @@ public class Assignment4_1_Tests {
 			assertEquals(result.length(), v.getCurvature(), 1e-5);
 		}
 	}
+	
+	@Test
+	public void volume()
+	{
+		assertEquals(hs.getVolume(), 2 * 2 * Math.PI, 1e-7);
+	}
 }

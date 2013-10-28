@@ -31,7 +31,7 @@ public class Assignment4_1_Demo {
 		//As not every mesh can be represented as a half-edge structure
 		//exceptions could occur.
 		try {
-			WireframeMesh m = ObjReader.read("objs/dragon_withNormals.obj", true);
+			WireframeMesh m = ObjReader.read("objs/sphere.obj", true);
 			hs.init(m);
 		} catch (MeshNotOrientedException | DanglingTriangleException | IOException e) {
 			e.printStackTrace();
@@ -70,16 +70,8 @@ public class Assignment4_1_Demo {
 		
 		
 		GLHalfEdgeStructure glMeshCurvatureNormal = new GLHalfEdgeStructure(hs);
-		glMeshCurvatureNormal.addElement(meanCurvatureNormals, Semantic.USERSPECIFIED, "normal");
-		glMeshCurvatureNormal.addElement(3, "color", new VertexAttribute() {
-			
-			@Override
-			public float[] getAttribute(Vertex v) {
-				return new float[]{.4f, .5f, .2f};
-			}
-		});
-		glMeshCurvatureNormal.configurePreferredShader("shaders/normal.vert", 
-				"shaders/normal.frag");
+		glMeshCurvatureNormal.configurePreferredShader("shaders/normal_vec.vert", 
+				"shaders/normal_vec.frag", "shaders/normal_vec.geom");
 		
 		
 		GLHalfEdgeStructure glMeshCurvatureL = new GLHalfEdgeStructure(hs);
