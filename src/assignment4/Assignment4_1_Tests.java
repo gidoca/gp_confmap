@@ -101,6 +101,6 @@ public class Assignment4_1_Tests {
 	@Test
 	public void volume()
 	{
-		assertEquals(hs.getVolume(), 2 * 2 * Math.PI, 1e-7);
+		assertEquals(hs.getVolume(), 2 * 2 * 2 * 4 / 3.f * Math.PI, 1);
 	}
 }
