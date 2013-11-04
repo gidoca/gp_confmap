@@ -1,21 +1,22 @@
 package assignment4;
 
+import glWrapper.GLHalfEdgeStructure;
+import glWrapper.VertexAttribute;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.vecmath.Vector3f;
 
-import openGL.MyDisplay;
-import openGL.gl.GLDisplayable.Semantic;
-
-import glWrapper.GLHalfEdgeStructure;
-import glWrapper.VertexAttribute;
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
 import meshes.WireframeMesh;
 import meshes.exception.DanglingTriangleException;
 import meshes.exception.MeshNotOrientedException;
 import meshes.reader.ObjReader;
+import openGL.MyDisplay;
+import openGL.gl.GLDisplayable.Semantic;
+import sparse.CSRMatrix;
 
 public class Assignment4_1_Demo {
 
@@ -31,7 +32,7 @@ public class Assignment4_1_Demo {
 		//As not every mesh can be represented as a half-edge structure
 		//exceptions could occur.
 		try {
-			WireframeMesh m = ObjReader.read("objs/sphere.obj", true);
+			WireframeMesh m = ObjReader.read("objs/dragon.obj", true);
 			hs.init(m);
 		} catch (MeshNotOrientedException | DanglingTriangleException | IOException e) {
 			e.printStackTrace();
@@ -62,7 +63,9 @@ public class Assignment4_1_Demo {
 		
 		ArrayList<Vector3f> meanCurvatureNormals = new ArrayList<>();
 		float[] curvature = new float[hs.getVertices().size()];
-		LMatrices.mult(LMatrices.mixedCotanLaplacian(hs), hs, meanCurvatureNormals);
+		CSRMatrix mat = LMatrices.mixedCotanLaplacian(hs);
+		mat.scale(-1);
+		LMatrices.mult(mat, hs, meanCurvatureNormals);
 		for(int i = 0; i < curvature.length; i++)
 		{
 			curvature[i] = meanCurvatureNormals.get(i).length() / 2.f;
@@ -70,6 +73,7 @@ public class Assignment4_1_Demo {
 		
 		
 		GLHalfEdgeStructure glMeshCurvatureNormal = new GLHalfEdgeStructure(hs);
+		glMeshCurvatureNormal.addElement(meanCurvatureNormals, Semantic.USERSPECIFIED, "normal");
 		glMeshCurvatureNormal.configurePreferredShader("shaders/normal_vec.vert", 
 				"shaders/normal_vec.frag", "shaders/normal_vec.geom");
 		
@@ -78,6 +82,7 @@ public class Assignment4_1_Demo {
 		glMeshCurvatureL.addElement(curvature, Semantic.USERSPECIFIED, 1, "curvature");
 		glMeshCurvatureL.configurePreferredShader("shaders/curvature.vert", 
 				"shaders/default.frag");
+		
 		
 		
 		MyDisplay d = new MyDisplay();

@@ -39,6 +39,16 @@ public class Vertex extends HEElement{
 		return anEdge;
 	}
 	
+	public boolean isOnBoundary() {
+		Iterator<HalfEdge> it = this.iteratorVE();
+		while(it.hasNext()){
+			if(it.next().isOnBorder()){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public int getValence() {
 		int out = 0;
 		for(@SuppressWarnings("unused") HalfEdge e: Iter.ate(iteratorVE()))

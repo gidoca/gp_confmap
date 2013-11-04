@@ -3,40 +3,24 @@ package algorithms;
 import java.util.Iterator;
 
 import javax.vecmath.Point3f;
+import javax.vecmath.Vector3f;
 
-import meshes.HEData3d;
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
 
 
-public class AvgSmoother {
-	private HEData3d newVertices;
+public class AvgSmoother extends Smoother {
 	private HalfEdgeStructure mesh;
 	
 	public AvgSmoother(HalfEdgeStructure mesh) {
-		this.mesh = mesh;
-		this.newVertices = new HEData3d(mesh);
+		super(mesh);
 	}
 	
-	public void apply()
-	{
-		computeNew();
-		setNew();
-	}
-	
-	private void setNew()
+	protected void computeNew()
 	{
 		for(Vertex v: mesh.getVertices())
 		{
-			v.getPos().set(newVertices.get(v));
-		}
-	}
-	
-	private void computeNew()
-	{
-		for(Vertex v: mesh.getVertices())
-		{
-			newVertices.put(v, neighbourhoodAvg(v));
+			newVertices.set(v.index, new Vector3f(neighbourhoodAvg(v)));
 		}
 	}
 	

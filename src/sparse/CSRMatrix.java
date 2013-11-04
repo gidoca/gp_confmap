@@ -41,6 +41,17 @@ public class CSRMatrix {
 		}
 	}
 	
+	public String toString()
+	{
+		StringBuffer sb = new StringBuffer();
+		for(ArrayList<col_val> row: rows)
+		{
+			sb.append(row.toString());
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
+	
 	public void set(int row, int col, float val)
 	{
 		if(val == 0)

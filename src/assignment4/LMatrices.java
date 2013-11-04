@@ -3,6 +3,7 @@ package assignment4;
 import helper.Iter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.vecmath.Vector3f;
 
@@ -10,6 +11,7 @@ import meshes.HalfEdge;
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
 import sparse.CSRMatrix;
+import sparse.solver.Solver;
 
 /**
  * Methods to create different flavours of the cotangent and uniform laplacian.
@@ -28,11 +30,12 @@ public class LMatrices {
 		for(Vertex v: hs.getVertices())
 		{
 			out.addRow();
-			out.setLastRow(v.index, 1);
+			if(v.isOnBoundary()) continue;
+			out.setLastRow(v.index, -1);
 			float invValence = 1.f / v.getValence();
 			for(Vertex n: Iter.ate(v.iteratorVV()))
 			{
-				out.setLastRow(n.index, -invValence);
+				out.setLastRow(n.index, invValence);
 			}
 		}
 		return out;
@@ -48,21 +51,30 @@ public class LMatrices {
 		for(Vertex v: hs.getVertices())
 		{
 			out.addRow();
+			if(v.isOnBoundary()) continue;
 			float sumWeights = 0;
 			for(HalfEdge e: Iter.ate(v.iteratorVE()))
 			{
 				Vertex n = e.start();
 				float a1 = e.getNext().getIncidentAngle();
 				float cotA1 = (float) (1.f / Math.tan(a1));
+				final float CLAMP = 1e2f;
+				if(Math.abs(cotA1) > CLAMP) cotA1 = (float) (CLAMP * Math.signum(cotA1));
 				float a2 = e.getOpposite().getNext().getIncidentAngle();
 				float cotA2 = (float) (1.f / Math.tan(a2));
+				if(Math.abs(cotA2) > CLAMP) cotA2 = (float) (CLAMP * Math.signum(cotA2));
 				float weight = (cotA1 + cotA2) / (2 * v.mixedArea());
+				
+				assert(weight*0 == 0);
 //				weight = (float) Math.max(weight, 1e-2);
 				sumWeights += weight;
-				out.setLastRow(n.index, -weight);
+				out.setLastRow(n.index, weight);
 			}
-			out.setLastRow(v.index, sumWeights);
+			out.setLastRow(v.index, -sumWeights);
+			
+			Collections.sort(out.lastRow());
 		}
+		
 		return out;
 	}
 	
@@ -128,5 +140,53 @@ public class LMatrices {
 				
 			}
 		}
+	}
+	
+	public static ArrayList<Vector3f> solve(CSRMatrix m, HalfEdgeStructure mesh, Solver s)
+	{
+		ArrayList<Vector3f> x = new ArrayList<>();
+		ArrayList<float[]> xArrays = new ArrayList<>();
+		ArrayList< ArrayList<Float> > bArrays = new ArrayList<>();
+		x.ensureCapacity(mesh.getVertices().size());
+		xArrays.ensureCapacity(mesh.getVertices().size());
+		bArrays.ensureCapacity(mesh.getVertices().size());
+		
+		for(int i = 0; i < 3; i++)
+		{
+			bArrays.add(new ArrayList<Float>());
+		}
+		
+		for(int i = 0; i < mesh.getVertices().size(); i++)
+		{
+			xArrays.add(new float[3]);
+			float[] pos = new float[3];
+			mesh.getVertices().get(i).getPos().get(pos);
+			for(int j = 0; j < 3; j++)
+			{
+				bArrays.get(j).add(pos[j]);
+			}
+		}
+
+		for(int i = 0; i < 3; i++)
+		{
+			ArrayList<Float> currentX = new ArrayList<>();
+			for(int j = 0; j < mesh.getVertices().size(); j++){
+				currentX.add(0.f);
+			}
+			s.solve(m, bArrays.get(i), currentX);
+			for(int j = 0; j < mesh.getVertices().size(); j++)
+			{
+				xArrays.get(j)[i] = currentX.get(j);
+			}
+		}
+		
+		for(int i = 0; i < mesh.getVertices().size(); i++)
+		{
+			Vector3f v = new Vector3f();
+			v.set(xArrays.get(i));
+			x.add(v);
+		}
+		
+		return x;
 	}
 }

@@ -43,7 +43,7 @@ public class GLHalfEdgeStructure extends GLDisplayable {
 			Iterator<Vertex> faceVertices = f.iteratorFV();
 			while(faceVertices.hasNext())
 			{
-				indices[i] = mesh.getVertices().indexOf(faceVertices.next());
+				indices[i] = faceVertices.next().index;
 				i++;
 			}
 		}
