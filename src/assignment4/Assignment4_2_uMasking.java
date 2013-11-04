@@ -1,8 +1,11 @@
 package assignment4;
 
+import glWrapper.GLHalfEdgeStructure;
 import glWrapper.GLWireframeMesh;
 
 import java.io.IOException;
+
+import algorithms.LaplacianSmoother;
 
 import meshes.HalfEdgeStructure;
 import meshes.WireframeMesh;
@@ -36,7 +39,23 @@ public class Assignment4_2_uMasking {
 			return;
 		}
 		
-		//do your unsharp masking thing...
+		GLHalfEdgeStructure glMeshDiffuse = new GLHalfEdgeStructure(hs);
+		glMeshDiffuse.configurePreferredShader("shaders/trimesh_flat.vert", 
+				"shaders/trimesh_flat.frag", 
+				"shaders/trimesh_flat.geom");
+
+			
+		LaplacianSmoother smoother = new LaplacianSmoother(hs, .01f);
+		smoother.apply(1);
+		GLHalfEdgeStructure glMeshSmoothed = new GLHalfEdgeStructure(hs);
+		glMeshSmoothed.configurePreferredShader("shaders/trimesh_flat.vert", 
+				"shaders/trimesh_flat.frag", 
+				"shaders/trimesh_flat.geom");
+			
+			
+		MyDisplay d = new MyDisplay();
+		d.addToDisplay(glMeshDiffuse);
+		d.addToDisplay(glMeshSmoothed);
 	}
 
 }

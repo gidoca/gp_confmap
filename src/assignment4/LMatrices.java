@@ -37,6 +37,8 @@ public class LMatrices {
 			{
 				out.setLastRow(n.index, invValence);
 			}
+			
+			Collections.sort(out.lastRow());
 		}
 		return out;
 	}
