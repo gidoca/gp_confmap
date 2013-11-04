@@ -45,7 +45,7 @@ public class Assignment4_2_smoothing {
 
 		
 		LaplacianSmoother smoother = new LaplacianSmoother(hs, .01f);
-		smoother.apply();
+		smoother.apply(-1);
 		GLHalfEdgeStructure glMeshSmoothed = new GLHalfEdgeStructure(hs);
 		glMeshSmoothed.configurePreferredShader("shaders/trimesh_flat.vert", 
 				"shaders/trimesh_flat.frag", 

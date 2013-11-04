@@ -20,20 +20,28 @@ public abstract class Smoother {
 		this.newVertices = new ArrayList<Vector3f>(Collections.nCopies(mesh.getVertices().size(), new Vector3f()));
 		this.mesh = mesh;
 	}
+	
+	public void apply()
+	{
+		apply(1);
+	}
 
-	public void apply() {
+	public void apply(float unsharpMaskFactor) {
 		this.initalVolume = mesh.getVolume();
 		computeNew();
-		setNew();
+		setNew(unsharpMaskFactor);
 		rescale();
 	}
 	
 	abstract void computeNew();
 
-	protected void setNew() {
+	protected void setNew(float unsharpMaskFactor) {
 		for(Vertex v: mesh.getVertices())
 		{
-			v.getPos().set(newVertices.get(v.index));
+			Vector3f diff = new Vector3f(newVertices.get(v.index));
+			diff.sub(v.getPos());
+			diff.scale(unsharpMaskFactor);
+			v.getPos().add(diff);
 		}
 	}
 	
