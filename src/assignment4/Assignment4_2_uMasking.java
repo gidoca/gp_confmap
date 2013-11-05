@@ -22,14 +22,7 @@ public class Assignment4_2_uMasking {
 	}
 
 	private static void headDemo() throws IOException {
-		WireframeMesh m = ObjReader.read("./objs/head.obj", true);//*/
-		
-		MyDisplay disp = new MyDisplay();
-		GLWireframeMesh glwf = new GLWireframeMesh(m);
-		glwf.configurePreferredShader("shaders/trimesh_flat.vert", 
-				"shaders/trimesh_flat.frag", 
-				"shaders/trimesh_flat.geom");
-		disp.addToDisplay(glwf);
+		WireframeMesh m = ObjReader.read("./objs/head.obj", true);
 		
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 			try {

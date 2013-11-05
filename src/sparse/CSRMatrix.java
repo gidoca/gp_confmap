@@ -52,6 +52,19 @@ public class CSRMatrix {
 		return sb.toString();
 	}
 	
+	public boolean isSymmetric(float epsilon)
+	{
+		for(int i = 0; i < nRows; i++)
+		{
+			ArrayList<col_val> row = rows.get(i);
+			for(col_val c: row)
+			{
+				if(Math.abs(c.val - get(c.col, i)) > epsilon) return false;
+			}
+		}
+		return true;
+	}
+	
 	public void set(int row, int col, float val)
 	{
 		if(val == 0)
@@ -66,6 +79,15 @@ public class CSRMatrix {
 			rows.get(row).add(colval);
 		}
 		colval.val = val;
+	}
+	
+	public void setVec(int col, ArrayList<Float> v)
+	{
+		assert(v.size() == nRows);
+		for(int i = 0; i < nRows; i++)
+		{
+			set(i, col, v.get(i));
+		}
 	}
 	
 	public void setLastRow(int col, float val)

@@ -30,6 +30,7 @@ public class Assignment4_1_Tests {
 	
 	
 	private CSRMatrix uniformLaplacian, mixedCotanLaplacian;
+	private CSRMatrix symmetricCotanLaplacian;
 	
 	@Before
 	public void setUp(){
@@ -44,6 +45,7 @@ public class Assignment4_1_Tests {
 			
 			uniformLaplacian = LMatrices.uniformLaplacian(hs);
 			mixedCotanLaplacian = LMatrices.mixedCotanLaplacian(hs);
+			symmetricCotanLaplacian = LMatrices.symmetricCotanLaplacian(hs);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -60,7 +62,11 @@ public class Assignment4_1_Tests {
 		l.mult(ones, result);
 		for(float v: result)
 		{
-			assertTrue(v < 1e-7);
+			if(Math.abs(v) >= 1e-5)
+			{
+				System.out.println(v);
+			}
+			assertTrue(Math.abs(v) < 1e-5);
 		}
 		
 		for(int i = 0; i < l.nRows; i++)
@@ -83,6 +89,13 @@ public class Assignment4_1_Tests {
 	public void cotanLaplacian()
 	{
 		testLaplacian(mixedCotanLaplacian);
+	}
+	
+	@Test
+	public void symmetricCotanLaplacian()
+	{
+		testLaplacian(symmetricCotanLaplacian);
+		assertTrue(symmetricCotanLaplacian.isSymmetric(1e-7f));
 	}
 	
 	@Test

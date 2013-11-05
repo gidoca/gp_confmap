@@ -34,6 +34,15 @@ import openGL.objects.Transformation;
  * 
  */
 public abstract class GLDisplayable {
+	private String name;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	/**
 	 * The number of vertices
@@ -293,10 +302,17 @@ public abstract class GLDisplayable {
 	@Override
 	public String toString()
 	{
-		String out = vert_shader_file;
-		if(geom_shader_file != null) out += "," + geom_shader_file;
-		out += "," + frag_shader_file;
-		return out;
+		if(name == null)
+		{
+			String out = vert_shader_file;
+			if(geom_shader_file != null) out += "," + geom_shader_file;
+			out += "," + frag_shader_file;
+			return out;
+		}
+		else
+		{
+			return name;
+		}
 	}
 
 }

@@ -86,7 +86,36 @@ public class LMatrices {
 	 * @return
 	 */
 	public static CSRMatrix symmetricCotanLaplacian(HalfEdgeStructure hs){
-		return null;
+		CSRMatrix out = new CSRMatrix(0, hs.getVertices().size());
+		for(Vertex v: hs.getVertices())
+		{
+			out.addRow();
+			if(v.isOnBoundary()) continue;
+			float sumWeights = 0;
+			for(HalfEdge e: Iter.ate(v.iteratorVE()))
+			{
+				Vertex n = e.start();
+				float a1 = e.getNext().getIncidentAngle();
+				float cotA1 = (float) (1.f / Math.tan(a1));
+				final float CLAMP = 1e2f;
+				if(Math.abs(cotA1) > CLAMP) cotA1 = (float) (CLAMP * Math.signum(cotA1));
+				float a2 = e.getOpposite().getNext().getIncidentAngle();
+				float cotA2 = (float) (1.f / Math.tan(a2));
+				if(Math.abs(cotA2) > CLAMP) cotA2 = (float) (CLAMP * Math.signum(cotA2));
+				float weight = (float) ((cotA1 + cotA2) / Math.sqrt(4 * v.mixedArea() * e.start().mixedArea()));
+				assert(v != e.start());
+				
+				assert(weight*0 == 0);
+//				weight = (float) Math.max(weight, 1e-2);
+				sumWeights += weight;
+				out.setLastRow(n.index, weight);
+			}
+			out.setLastRow(v.index, -sumWeights);
+			
+			Collections.sort(out.lastRow());
+		}
+		
+		return out;
 	}
 	
 	
