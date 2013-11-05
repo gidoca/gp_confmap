@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import algorithms.FloatFunction;
 import algorithms.Smoother;
 import algorithms.SpectralSmoother;
 
@@ -32,6 +33,7 @@ public class Assignment4_4_spectralSmoothing {
 	
 	public static void main(String[] args)
 	{
+		//sphericalHarmonicsDemo();
 		spectralSmoothingDemo();
 	}
 
@@ -39,7 +41,7 @@ public class Assignment4_4_spectralSmoothing {
 		
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 			try {
-			WireframeMesh m = ObjReader.read("./objs/teapot.obj", true);
+			WireframeMesh m = ObjReader.read("./objs/dragon_5000.obj", true);
 			hs.init(m);
 		} catch (MeshNotOrientedException | DanglingTriangleException | IOException e) {
 			e.printStackTrace();
@@ -55,7 +57,12 @@ public class Assignment4_4_spectralSmoothing {
 		d.addToDisplay(glMeshDiffuse);
 
 
-		Smoother s = new SpectralSmoother(hs, 15);
+		Smoother s = new SpectralSmoother(hs, 1000, new FloatFunction() {
+			@Override
+			public float f(float x) {
+				return Math.abs(x) > 10 ? .5f : (Math.abs(x) < 2 ? 1 : .3f);
+			}
+		});
 		s.apply();
 		GLHalfEdgeStructure glMeshSmoothed = new GLHalfEdgeStructure(hs);
 		glMeshSmoothed.configurePreferredShader("shaders/trimesh_flat.vert", 
@@ -70,7 +77,7 @@ public class Assignment4_4_spectralSmoothing {
 	{
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 		try {
-		WireframeMesh m = ObjReader.read("./objs/sphere.obj", true);
+		WireframeMesh m = ObjReader.read("./objs/teapot.obj", true);
 		hs.init(m);
 	} catch (MeshNotOrientedException | DanglingTriangleException | IOException e) {
 		e.printStackTrace();
@@ -105,7 +112,6 @@ public class Assignment4_4_spectralSmoothing {
 		glEV.configurePreferredShader("shaders/trimesh_flatColor3f.vert", "shaders/trimesh_flatColor3f.frag", "shaders/trimesh_flatColor3f.geom");
 		glEV.setName("EV " + i);
 		glEV.addElement(3, "color", new VertexAttribute() {
-			
 			@Override
 			public float[] getAttribute(Vertex v) {
 				float[] out = new float[3];
