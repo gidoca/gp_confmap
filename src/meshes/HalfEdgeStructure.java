@@ -94,6 +94,16 @@ public class HalfEdgeStructure {
 		return out;
 	}
 	
+	public float getSurfaceArea()
+	{
+		float out = 0;
+		for(Face f: getFaces())
+		{
+			out += f.area();
+		}
+		return out;
+	}
+	
 	
 	/**
 	 * Create a Halfedge Structure from a wireframe mesh described by the vertex Positions verts and fcs; this

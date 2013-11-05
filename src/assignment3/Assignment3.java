@@ -38,7 +38,7 @@ public class Assignment3 {
 		ArrayList<Float> x = sphericalFunction(tree);
 		marchingCubesDemo(pc, x, tree, true);*/
 		
-		PointCloud pc2 = ObjReader.readAsPointCloud("./objs/dragon_withNormals.obj", true);
+		PointCloud pc2 = ObjReader.readAsPointCloud("./objs/gian_normals.obj", true);
 //		PointCloud pc2 = spherePointCloud(20);
 		HashOctree tree2 = new HashOctree(pc2, 7, 1, 1.1f);
 		tree2.refineTree(2);

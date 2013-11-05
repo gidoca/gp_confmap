@@ -31,7 +31,7 @@ public class Assignment4_2_smoothing {
 		//As not every mesh can be represented as a half-edge structure
 		//exceptions could occur.
 		try {
-			WireframeMesh m = ObjReader.read("objs/bunny5k.obj", true);
+			WireframeMesh m = ObjReader.read("objs/head.obj", true);
 			hs.init(m);
 		} catch (MeshNotOrientedException | DanglingTriangleException | IOException e) {
 			e.printStackTrace();

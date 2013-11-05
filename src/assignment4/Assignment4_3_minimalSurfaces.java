@@ -1,8 +1,9 @@
 package assignment4;
 
+import glWrapper.GLHalfEdgeStructure;
 import glWrapper.GLHalfedgeStructure;
+import glWrapper.VertexAttribute;
 
-import java.util.Collections;
 import java.util.Iterator;
 
 import javax.vecmath.Vector3f;
@@ -14,9 +15,8 @@ import meshes.HalfEdgeStructure;
 import meshes.Vertex;
 import meshes.WireframeMesh;
 import openGL.MyDisplay;
-import sparse.CSRMatrix;
-import sparse.CSRMatrix.col_val;
-import assignment4.generatedMeshes.Cylinder;
+import algorithms.MinimalSurface;
+import assignment4.generatedMeshes.Bock;
 
 public class Assignment4_3_minimalSurfaces {
 	
@@ -24,8 +24,8 @@ public class Assignment4_3_minimalSurfaces {
 	public static void main(String[] args) throws Exception{
 		
 		//generate example meshes
-		//WireframeMesh m = new Bock(1.3f,1.f,1.f).result;
-		WireframeMesh m = new Cylinder(1.f,1.6f).result;
+		WireframeMesh m = new Bock(1.3f,1.f,1.f).result;
+		//WireframeMesh m = new Cylinder(1.f,1.5f).result;
 		
 		
 		//generate he struture
@@ -36,8 +36,10 @@ public class Assignment4_3_minimalSurfaces {
 		HEData1d boundary = collectBoundary(hs, 1);
 		display(hs, boundary);
 		
-		//implement the surface minimalization...
+		MinimalSurface min = new MinimalSurface(hs, 0.01f);
+		min.apply();
 		
+		display(hs, boundary);
 	}
 	
 
@@ -57,7 +59,19 @@ public class Assignment4_3_minimalSurfaces {
 				"shaders/trimesh_flatColor3f.frag", 
 				"shaders/trimesh_flatColor3f.geom");
 		disp.addToDisplay(glHE);
-	}
+
+		GLHalfEdgeStructure glMeshCurvature = new GLHalfEdgeStructure(hs);
+		glMeshCurvature.addElement(1, "curvature", new VertexAttribute() {
+			
+			@Override
+			public float[] getAttribute(Vertex v) {
+				return new float[]{v.getCurvature()};
+			}
+		});
+		glMeshCurvature.configurePreferredShader("shaders/curvature.vert", 
+				"shaders/default.frag");
+		disp.addToDisplay(glMeshCurvature);
+}
 
 
 

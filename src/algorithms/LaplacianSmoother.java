@@ -22,7 +22,7 @@ public class LaplacianSmoother extends Smoother {
 		laplacian.scale(-lambda);
 		CSRMatrix mat = new CSRMatrix(0, laplacian.nCols);
 		mat.add(SSDMatrices.eye(laplacian.nRows, laplacian.nCols), laplacian);
-		Solver solver = new SciPySolver("lap");
+		Solver solver = new JMTSolver();
 		newVertices = LMatrices.solve(mat, mesh, solver);
 	}
 }

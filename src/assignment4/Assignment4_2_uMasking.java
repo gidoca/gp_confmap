@@ -45,8 +45,8 @@ public class Assignment4_2_uMasking {
 				"shaders/trimesh_flat.geom");
 
 			
-		LaplacianSmoother smoother = new LaplacianSmoother(hs, .01f);
-		smoother.apply(1);
+		LaplacianSmoother smoother = new LaplacianSmoother(hs, .001f);
+		smoother.apply(2.5f);
 		GLHalfEdgeStructure glMeshSmoothed = new GLHalfEdgeStructure(hs);
 		glMeshSmoothed.configurePreferredShader("shaders/trimesh_flat.vert", 
 				"shaders/trimesh_flat.frag", 

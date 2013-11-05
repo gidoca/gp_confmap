@@ -23,9 +23,13 @@ public abstract class Smoother {
 	
 	public void apply()
 	{
-		apply(1);
+		apply(0);
 	}
 
+	/**
+	 * 
+	 * @param unsharpMaskFactor positive for smoothing, negative for unsharp masking, zero for original mesh
+	 */
 	public void apply(float unsharpMaskFactor) {
 		this.initalVolume = mesh.getVolume();
 		computeNew();
@@ -38,10 +42,11 @@ public abstract class Smoother {
 	protected void setNew(float unsharpMaskFactor) {
 		for(Vertex v: mesh.getVertices())
 		{
-			Vector3f diff = new Vector3f(newVertices.get(v.index));
-			diff.sub(v.getPos());
+			Vector3f diff = new Vector3f(v.getPos());
+			diff.sub(newVertices.get(v.index));
 			diff.scale(unsharpMaskFactor);
-			v.getPos().add(diff);
+			diff.add(newVertices.get(v.index));
+			v.getPos().set(diff);
 		}
 	}
 	
