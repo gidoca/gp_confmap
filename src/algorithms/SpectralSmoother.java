@@ -55,7 +55,7 @@ public class SpectralSmoother extends Smoother {
 		CSRMatrix kernel = new CSRMatrix(nEV, nEV);
 		for(int i = 0; i < nEV; i++)
 		{
-			kernel.set(i, i, this.kernel.f(evals.get(i)));
+			kernel.set(i, i, this.kernel.f((float) Math.sqrt(Math.abs(evals.get(i)))));
 		}
 		CSRMatrix temp = new CSRMatrix(0, nEV);
 		evMatrix.multParallel(kernel, temp);

@@ -33,15 +33,15 @@ public class Assignment4_4_spectralSmoothing {
 	
 	public static void main(String[] args)
 	{
-		sphericalHarmonicsDemo();
-		//spectralSmoothingDemo();
+		//sphericalHarmonicsDemo();
+		spectralSmoothingDemo();
 	}
 
 	private static void spectralSmoothingDemo(){
 		
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 			try {
-			WireframeMesh m = ObjReader.read("./objs/dragon_5000.obj", true);
+			WireframeMesh m = ObjReader.read("./objs/bunny.obj", true);
 			hs.init(m);
 		} catch (MeshNotOrientedException | DanglingTriangleException | IOException e) {
 			e.printStackTrace();
@@ -57,10 +57,10 @@ public class Assignment4_4_spectralSmoothing {
 		d.addToDisplay(glMeshDiffuse);
 
 
-		Smoother s = new SpectralSmoother(hs, 1000, new FloatFunction() {
+		Smoother s = new SpectralSmoother(hs, 100, new FloatFunction() {
 			@Override
 			public float f(float x) {
-				return Math.abs(x) > 10 ? .5f : (Math.abs(x) < 2 ? 1 : .3f);
+				return Math.abs(x) > 10 ? 2f : (Math.abs(x) < 2 ? 1 : 1.2f);
 			}
 		});
 		s.apply();
