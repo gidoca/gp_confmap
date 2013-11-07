@@ -30,7 +30,7 @@ public class Assignment1 {
 	public static void main(String[] args) throws IOException{
 		//Load a wireframe mesh
 		//WireframeMesh m = ObjReader.read("/home/gidoca/files/uni/ma/code/renderer/qtcreator-build/src/objfiles/cow.obj", false);
-		WireframeMesh m = ObjReader.read("objs/tiger.obj", true);
+		WireframeMesh m = ObjReader.read("objs/gian_out.obj", true);
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 		
 		//create a half-edge structure out of the wireframe description.

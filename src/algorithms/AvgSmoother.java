@@ -10,8 +10,6 @@ import meshes.Vertex;
 
 
 public class AvgSmoother extends Smoother {
-	private HalfEdgeStructure mesh;
-	
 	public AvgSmoother(HalfEdgeStructure mesh) {
 		super(mesh);
 	}
