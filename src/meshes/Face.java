@@ -154,4 +154,13 @@ public class Face extends HEElement {
 		}
 
 	}
+
+	public Vector3f normal() {
+		Vector3f out = new Vector3f();
+		Iterator<HalfEdge> edgeIt = iteratorFE();
+		HalfEdge edge1 = edgeIt.next(), edge2 = edgeIt.next();
+		out.cross(edge1.getVec(), edge2.getVec());
+		out.normalize();
+		return out;
+	}
 }
