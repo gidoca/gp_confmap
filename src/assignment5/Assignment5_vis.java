@@ -1,18 +1,23 @@
 package assignment5;
 
+import glWrapper.GLHalfEdgeStructure;
 import glWrapper.GLWireframeMesh;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
 
+import meshes.HalfEdge;
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
 import meshes.WireframeMesh;
 import meshes.reader.ObjReader;
 import openGL.MyDisplay;
+import openGL.gl.GLDisplayable.Semantic;
 import openGL.objects.Transformation;
 
 
@@ -23,11 +28,79 @@ import openGL.objects.Transformation;
  *
  */
 public class Assignment5_vis {
+	
+	public static final float collapseRatio = 0.1f;
 
 	public static void main(String[] args) throws Exception{
 		WireframeMesh wf = ObjReader.read("objs/bunny_ear.obj", true);
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 		hs.init(wf);
+		
+
+		System.out.println(hs.getVertices().size());
+		
+		WireframeMesh collapsedWF = new WireframeMesh();
+		collapsedWF.vertices = wf.vertices;
+		collapsedWF.faces = new ArrayList<int[]>();
+		WireframeMesh nonCollapsedWF = new WireframeMesh();
+		nonCollapsedWF.vertices = wf.vertices;
+		nonCollapsedWF.faces = new ArrayList<int[]>(wf.faces);
+
+		HalfEdgeCollapse collaptor = new HalfEdgeCollapse(hs);
+		Random ran = new Random();
+		for(int i = 0; i < 1/*collapseRatio * hs.getHalfEdges().size()*/; i++)
+		{
+			int index = ran.nextInt(hs.getHalfEdges().size());
+			HalfEdge e = hs.getHalfEdges().get(index);
+			if(!HalfEdgeCollapse.isEdgeCollapsable(e))
+			{
+				continue;
+			}
+			for(int j = 0; j < nonCollapsedWF.faces.size(); j++)
+			{
+				boolean containsStart = false, containsEnd = false;
+				int[] vIndices = nonCollapsedWF.faces.get(i);
+				for(int k = 0; k < vIndices.length; k++)
+				{
+					if(vIndices[k] == e.start().index) containsStart = true;
+					if(vIndices[k] == e.end().index) containsEnd = true;
+				}
+				if(containsStart && containsEnd)
+				{
+					collapsedWF.faces.add(nonCollapsedWF.faces.remove(index));
+				}
+			}
+			collaptor.collapseEdge(e);
+		}
+		collaptor.finish();
+		System.out.println(hs.getVertices().size());
+		
+		
+		
+		GLWireframeMesh glNonCollapsed = new GLWireframeMesh(nonCollapsedWF);
+		glNonCollapsed.addElement(new ArrayList<>(Collections.nCopies(wf.vertices.size(), new Vector3f(0, 0, 1))), Semantic.USERSPECIFIED, "color");
+		glNonCollapsed.configurePreferredShader("shaders/trimesh_flat.vert", 
+				"shaders/trimesh_flat.frag", 
+				"shaders/trimesh_flat.geom");
+		
+		GLWireframeMesh glCollapsed = new GLWireframeMesh(collapsedWF);
+		glCollapsed.addElement(new ArrayList<>(Collections.nCopies(wf.vertices.size(), new Vector3f(1, 0, 0))), Semantic.USERSPECIFIED, "color");
+		glNonCollapsed.configurePreferredShader("shaders/trimesh_flat.vert", 
+				"shaders/trimesh_flat.frag", 
+				"shaders/trimesh_flat.geom");
+		
+		GLHalfEdgeStructure glNew = new GLHalfEdgeStructure(hs);
+		glNew.configurePreferredShader("shaders/trimesh_flat.vert", 
+				"shaders/trimesh_flat.frag", 
+				"shaders/trimesh_flat.geom");
+		
+		MyDisplay d = new MyDisplay();
+		d.addToDisplay(glNonCollapsed);
+		d.addToDisplay(glCollapsed);
+		d.addToDisplay(glNew);
+		
+		
+		
 		
 		
 		//visualize the isosurfaces of this bunny_ear	

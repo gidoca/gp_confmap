@@ -1,8 +1,10 @@
 package assignment5;
 
 import glWrapper.GLHalfedgeStructure;
+import helper.Iter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -84,7 +86,28 @@ public class HalfEdgeCollapse {
 		
 	}
 
+	private void collapseHalfEdge(HalfEdge e) {
+		deadEdges.add(e);
+		
+		
+		if(e.isOnBorder())
+		{
+			e.getPrev().setNext(e.getNext());
+			e.getNext().setPrev(e.getPrev());
+		}
+		else
+		{
+			deadFaces.add(e.getFace());
+			for(HalfEdge edge: Iter.ate(e.getFace().iteratorFE()))
+			{
+				deadEdges.add(edge);
+			}
+			e.getNextOnEnd().setOpposite(e.getPrevOnStart());
+			e.getPrevOnStart().setOpposite(e.getNextOnEnd());
+		}
 
+	
+	}
 	
 
 	/**
@@ -94,15 +117,29 @@ public class HalfEdgeCollapse {
 	 * @param hs
 	 */
 	void collapseEdge(HalfEdge e){
-		
+		assert(isEdgeCollapsable(e));
 		
 		//First step:
 		//relink the vertices to safe edges. don't iterate 
 		//around e.end() before the collapse is finished.
 		makeV2ERefSafe(e);
 		
+		deadVertices.add(e.start());
 		
-		//your code goes here....
+		ArrayList<HalfEdge> edgeUpdate = new ArrayList<HalfEdge>();
+		for(HalfEdge edge: Iter.ate(e.start().iteratorVE()))
+		{
+			assert(edge.end() == e.start());
+
+			edgeUpdate.add(edge);
+		}
+		for(HalfEdge edge: edgeUpdate)
+		{
+			edge.setEnd(e.end());
+		}
+		
+		collapseHalfEdge(e);
+		collapseHalfEdge(e.getOpposite());
 		
 		
 		
@@ -110,7 +147,8 @@ public class HalfEdgeCollapse {
 		//or in the calling method... ;-)
 		//If something is wrong in the half-edge structure it is awful
 		//to detect what it is that is wrong...
-
+		assertEdgesOk(hs);
+		assertVerticesOk(hs);
 	}
 	
 	

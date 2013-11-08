@@ -28,7 +28,7 @@ public class QSlim {
 	HalfEdgeStructure hs;
 	
 	/********************************************
-	 * Use or discard the skeletton, as you like.
+	 * Use or discard the skeleton, as you like.
 	 ********************************************/
 	
 	
