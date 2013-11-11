@@ -87,15 +87,9 @@ public class HalfEdgeCollapse {
 	}
 
 	private void collapseHalfEdge(HalfEdge e) {
-		deadEdges.add(e);
 		
 		
-		if(e.isOnBorder())
-		{
-			e.getPrev().setNext(e.getNext());
-			e.getNext().setPrev(e.getPrev());
-		}
-		else
+		if(e.hasFace())
 		{
 			deadFaces.add(e.getFace());
 			for(HalfEdge edge: Iter.ate(e.getFace().iteratorFE()))
@@ -104,6 +98,12 @@ public class HalfEdgeCollapse {
 			}
 			e.getNextOnEnd().setOpposite(e.getPrevOnStart());
 			e.getPrevOnStart().setOpposite(e.getNextOnEnd());
+		}
+		else
+		{
+			deadEdges.add(e);
+			e.getPrev().setNext(e.getNext());
+			e.getNext().setPrev(e.getPrev());
 		}
 
 	
@@ -122,6 +122,7 @@ public class HalfEdgeCollapse {
 		//First step:
 		//relink the vertices to safe edges. don't iterate 
 		//around e.end() before the collapse is finished.
+		
 		makeV2ERefSafe(e);
 		
 		deadVertices.add(e.start());
@@ -141,14 +142,12 @@ public class HalfEdgeCollapse {
 		collapseHalfEdge(e);
 		collapseHalfEdge(e.getOpposite());
 		
-		
-		
 		//Do a lot of assertions while debugging, either here
 		//or in the calling method... ;-)
 		//If something is wrong in the half-edge structure it is awful
 		//to detect what it is that is wrong...
-		assertEdgesOk(hs);
-		assertVerticesOk(hs);
+		/*assertEdgesOk(hs);
+		assertVerticesOk(hs);*/
 	}
 	
 	

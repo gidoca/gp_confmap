@@ -29,10 +29,10 @@ import openGL.objects.Transformation;
  */
 public class Assignment5_vis {
 	
-	public static final float collapseRatio = 0.1f;
+	public static final float collapseRatio = 1f;
 
 	public static void main(String[] args) throws Exception{
-		WireframeMesh wf = ObjReader.read("objs/bunny_ear.obj", true);
+		WireframeMesh wf = ObjReader.read("objs/bunny.obj", true);
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 		hs.init(wf);
 		
@@ -47,16 +47,17 @@ public class Assignment5_vis {
 		nonCollapsedWF.faces = new ArrayList<int[]>(wf.faces);
 
 		HalfEdgeCollapse collaptor = new HalfEdgeCollapse(hs);
-		Random ran = new Random();
-		for(int i = 0; i < 1/*collapseRatio * hs.getHalfEdges().size()*/; i++)
+		Random ran = new Random(1);
+		final int numE = hs.getVertices().size();
+		for(int i = 0; i < collapseRatio * numE; i++)
 		{
 			int index = ran.nextInt(hs.getHalfEdges().size());
 			HalfEdge e = hs.getHalfEdges().get(index);
-			if(!HalfEdgeCollapse.isEdgeCollapsable(e))
+			if(collaptor.isEdgeDead(e) || !HalfEdgeCollapse.isEdgeCollapsable(e) || e.start().isOnBoundary() || e.end().isOnBoundary() || !collaptor.isCollapseMeshInv(e, e.end().getPos()))
 			{
 				continue;
 			}
-			for(int j = 0; j < nonCollapsedWF.faces.size(); j++)
+			/*for(int j = 0; j < nonCollapsedWF.faces.size(); j++)
 			{
 				boolean containsStart = false, containsEnd = false;
 				int[] vIndices = nonCollapsedWF.faces.get(i);
@@ -69,23 +70,29 @@ public class Assignment5_vis {
 				{
 					collapsedWF.faces.add(nonCollapsedWF.faces.remove(index));
 				}
+			}*/
+			try {
+				collaptor.collapseEdge(e);
+			} catch(AssertionError ex) {
+				System.out.println(i);
+				ex.printStackTrace();
+				System.exit(-1);
 			}
-			collaptor.collapseEdge(e);
 		}
 		collaptor.finish();
 		System.out.println(hs.getVertices().size());
 		
 		
 		
-		GLWireframeMesh glNonCollapsed = new GLWireframeMesh(nonCollapsedWF);
+		/*GLWireframeMesh glNonCollapsed = new GLWireframeMesh(nonCollapsedWF);
 		glNonCollapsed.addElement(new ArrayList<>(Collections.nCopies(wf.vertices.size(), new Vector3f(0, 0, 1))), Semantic.USERSPECIFIED, "color");
 		glNonCollapsed.configurePreferredShader("shaders/trimesh_flat.vert", 
 				"shaders/trimesh_flat.frag", 
-				"shaders/trimesh_flat.geom");
+				"shaders/trimesh_flat.geom");*/
 		
 		GLWireframeMesh glCollapsed = new GLWireframeMesh(collapsedWF);
 		glCollapsed.addElement(new ArrayList<>(Collections.nCopies(wf.vertices.size(), new Vector3f(1, 0, 0))), Semantic.USERSPECIFIED, "color");
-		glNonCollapsed.configurePreferredShader("shaders/trimesh_flat.vert", 
+		glCollapsed.configurePreferredShader("shaders/trimesh_flat.vert", 
 				"shaders/trimesh_flat.frag", 
 				"shaders/trimesh_flat.geom");
 		
@@ -95,7 +102,7 @@ public class Assignment5_vis {
 				"shaders/trimesh_flat.geom");
 		
 		MyDisplay d = new MyDisplay();
-		d.addToDisplay(glNonCollapsed);
+		//d.addToDisplay(glNonCollapsed);
 		d.addToDisplay(glCollapsed);
 		d.addToDisplay(glNew);
 		
