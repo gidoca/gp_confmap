@@ -32,7 +32,7 @@ public class Assignment5_vis {
 	public static final float collapseRatio = 1f;
 
 	public static void main(String[] args) throws Exception{
-		WireframeMesh wf = ObjReader.read("objs/bunny.obj", true);
+		WireframeMesh wf = ObjReader.read("objs/dragon.obj", true);
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 		hs.init(wf);
 		
@@ -48,12 +48,24 @@ public class Assignment5_vis {
 
 		HalfEdgeCollapse collaptor = new HalfEdgeCollapse(hs);
 		Random ran = new Random(1);
-		final int numE = hs.getVertices().size();
-		for(int i = 0; i < collapseRatio * numE; i++)
+		int nf = 0;
+		final int numE = hs.getHalfEdges().size();
+		final int numV = hs.getVertices().size();
+		for(int i = 0; i < collapseRatio * numV; i++)
 		{
 			int index = ran.nextInt(hs.getHalfEdges().size());
 			HalfEdge e = hs.getHalfEdges().get(index);
-			if(collaptor.isEdgeDead(e) || !HalfEdgeCollapse.isEdgeCollapsable(e) || e.start().isOnBoundary() || e.end().isOnBoundary() || !collaptor.isCollapseMeshInv(e, e.end().getPos()))
+			if(collaptor.isEdgeDead(e)) continue;
+			if(collaptor.isCollapseMeshInv(e, e.end().getPos()))
+			{
+				e = e.getOpposite();
+			}
+			else
+			{
+				nf++;
+				//System.out.println("noflip");
+			}
+			if(!HalfEdgeCollapse.isEdgeCollapsable(e) || e.start().isOnBoundary() || e.end().isOnBoundary() || collaptor.isCollapseMeshInv(e, e.end().getPos()))
 			{
 				continue;
 			}
@@ -80,21 +92,21 @@ public class Assignment5_vis {
 			}
 		}
 		collaptor.finish();
-		System.out.println(hs.getVertices().size());
+		System.out.println(nf);
 		
 		
 		
-		/*GLWireframeMesh glNonCollapsed = new GLWireframeMesh(nonCollapsedWF);
+		GLWireframeMesh glNonCollapsed = new GLWireframeMesh(nonCollapsedWF);
 		glNonCollapsed.addElement(new ArrayList<>(Collections.nCopies(wf.vertices.size(), new Vector3f(0, 0, 1))), Semantic.USERSPECIFIED, "color");
 		glNonCollapsed.configurePreferredShader("shaders/trimesh_flat.vert", 
 				"shaders/trimesh_flat.frag", 
-				"shaders/trimesh_flat.geom");*/
+				"shaders/trimesh_flat.geom");
 		
-		GLWireframeMesh glCollapsed = new GLWireframeMesh(collapsedWF);
+		/*GLWireframeMesh glCollapsed = new GLWireframeMesh(collapsedWF);
 		glCollapsed.addElement(new ArrayList<>(Collections.nCopies(wf.vertices.size(), new Vector3f(1, 0, 0))), Semantic.USERSPECIFIED, "color");
 		glCollapsed.configurePreferredShader("shaders/trimesh_flat.vert", 
 				"shaders/trimesh_flat.frag", 
-				"shaders/trimesh_flat.geom");
+				"shaders/trimesh_flat.geom");*/
 		
 		GLHalfEdgeStructure glNew = new GLHalfEdgeStructure(hs);
 		glNew.configurePreferredShader("shaders/trimesh_flat.vert", 
@@ -102,8 +114,8 @@ public class Assignment5_vis {
 				"shaders/trimesh_flat.geom");
 		
 		MyDisplay d = new MyDisplay();
-		//d.addToDisplay(glNonCollapsed);
-		d.addToDisplay(glCollapsed);
+		d.addToDisplay(glNonCollapsed);
+		//d.addToDisplay(glCollapsed);
 		d.addToDisplay(glNew);
 		
 		

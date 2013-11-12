@@ -250,7 +250,7 @@ public class HalfEdgeCollapse {
 		
 		while(it.hasNext()){
 			current = it.next();
-			next = current.getPrev().getOpposite();
+			next = current.getNext().getOpposite();
 			if(next == e || current == e || ! current.hasFace()){
 				
 				continue;
@@ -258,10 +258,11 @@ public class HalfEdgeCollapse {
 			n1.set(oldFaceNormals.get(current.getFace()));
 			
 			e1.set(newPos); e1.negate();
-			e1.add(current.end().getPos());
+			e1.add(current.start().getPos());
 			e2.set(newPos); e2.negate();
-			e2.add(next.end().getPos());
+			e2.add(next.start().getPos());
 			n2.cross(e1, e2);
+			n2.negate();
 			
 			//Degenerated faces have 0 normals and flips on 
 			//them will not be detected.
