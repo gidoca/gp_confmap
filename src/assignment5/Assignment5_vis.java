@@ -29,7 +29,7 @@ import openGL.objects.Transformation;
  */
 public class Assignment5_vis {
 	
-	public static final float collapseRatio = 1f;
+	public static final float collapseRatio = .1f;
 
 	public static void main(String[] args) throws Exception{
 		WireframeMesh wf = ObjReader.read("objs/dragon.obj", true);
@@ -48,8 +48,6 @@ public class Assignment5_vis {
 
 		HalfEdgeCollapse collaptor = new HalfEdgeCollapse(hs);
 		Random ran = new Random(1);
-		int nf = 0;
-		final int numE = hs.getHalfEdges().size();
 		final int numV = hs.getVertices().size();
 		for(int i = 0; i < collapseRatio * numV; i++)
 		{
@@ -60,12 +58,7 @@ public class Assignment5_vis {
 			{
 				e = e.getOpposite();
 			}
-			else
-			{
-				nf++;
-				//System.out.println("noflip");
-			}
-			if(!HalfEdgeCollapse.isEdgeCollapsable(e) || e.start().isOnBoundary() || e.end().isOnBoundary() || collaptor.isCollapseMeshInv(e, e.end().getPos()))
+			if(!HalfEdgeCollapse.isEdgeCollapsable(e) || collaptor.isCollapseMeshInv(e, e.end().getPos()))
 			{
 				continue;
 			}
@@ -83,16 +76,10 @@ public class Assignment5_vis {
 					collapsedWF.faces.add(nonCollapsedWF.faces.remove(index));
 				}
 			}*/
-			try {
-				collaptor.collapseEdge(e);
-			} catch(AssertionError ex) {
-				System.out.println(i);
-				ex.printStackTrace();
-				System.exit(-1);
-			}
+			collaptor.collapseEdge(e);
 		}
 		collaptor.finish();
-		System.out.println(nf);
+		System.out.println(hs.getVertices().size());
 		
 		
 		

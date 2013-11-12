@@ -1,31 +1,19 @@
 package assignment5;
 
-import glWrapper.GLHalfedgeStructure;
 import helper.Iter;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Random;
-import java.util.Stack;
 
 import javax.vecmath.Point3f;
-import javax.vecmath.Tuple3f;
 import javax.vecmath.Vector3f;
 
-import openGL.MyDisplay;
-
-import com.jogamp.common.util.cache.TempCacheReg;
-
 import meshes.Face;
-import meshes.Face.IteratorFE;
 import meshes.HalfEdge;
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
-import meshes.WireframeMesh;
-import meshes.reader.ObjReader;
 
 
 /**
