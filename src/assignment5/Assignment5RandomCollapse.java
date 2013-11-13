@@ -28,7 +28,7 @@ public class Assignment5RandomCollapse {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		WireframeMesh wf = ObjReader.read("objs/bunny_ear.obj", true);
+		WireframeMesh wf = ObjReader.read("objs/bunny5k.obj", true);
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 		hs.init(wf);
 		
@@ -95,7 +95,7 @@ public class Assignment5RandomCollapse {
 		
 		
 		GLWireframeMesh glNonCollapsed = new GLWireframeMesh(nonCollapsedWF);
-		glNonCollapsed.addElement(new ArrayList<>(Collections.nCopies(wf.vertices.size(), new Vector3f(0, 0, 1))), Semantic.USERSPECIFIED, "color");
+		glNonCollapsed.addElement(new ArrayList<>(Collections.nCopies(nonCollapsedWF.vertices.size(), new Vector3f(0, 0, 1))), Semantic.USERSPECIFIED, "color");
 		glNonCollapsed.configurePreferredShader("shaders/trimesh_flatColor3f.vert", 
 				"shaders/trimesh_flatColor3f.frag", 
 				"shaders/trimesh_flatColor3f.geom");

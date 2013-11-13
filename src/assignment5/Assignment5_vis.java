@@ -5,22 +5,18 @@ import glWrapper.GLWireframeMesh;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Random;
 
 import javax.vecmath.Matrix3f;
+import javax.vecmath.Matrix4f;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
 
-import algorithms.DegenerateTriangleRemover;
-
-import meshes.HalfEdge;
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
 import meshes.WireframeMesh;
 import meshes.reader.ObjReader;
 import openGL.MyDisplay;
 import openGL.gl.GLDisplayable.Semantic;
-import openGL.objects.Transformation;
 
 
 /**
@@ -32,47 +28,43 @@ import openGL.objects.Transformation;
 public class Assignment5_vis {
 	
 	public static void main(String[] args) throws Exception{
-		WireframeMesh wf = ObjReader.read("objs/buddha.obj", true);
+		WireframeMesh wf = ObjReader.read("objs/bunny_ear.obj", true);
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 		hs.init(wf);
 		
-
-		System.out.println(hs.getVertices().size());
-		
-		WireframeMesh collapsedWF = new WireframeMesh();
-		collapsedWF.vertices = wf.vertices;
-		collapsedWF.faces = new ArrayList<int[]>();
-		WireframeMesh nonCollapsedWF = new WireframeMesh();
-		nonCollapsedWF.vertices = wf.vertices;
-		nonCollapsedWF.faces = new ArrayList<int[]>(wf.faces);
-
-		DegenerateTriangleRemover dtr = new DegenerateTriangleRemover(hs, .0001f);
-		dtr.apply();
-		System.out.println(hs.getVertices().size());
-		
-		
-		
-		GLWireframeMesh glNonCollapsed = new GLWireframeMesh(nonCollapsedWF);
-		glNonCollapsed.addElement(new ArrayList<>(Collections.nCopies(wf.vertices.size(), new Vector3f(0, 0, 1))), Semantic.USERSPECIFIED, "color");
-		glNonCollapsed.configurePreferredShader("shaders/trimesh_flat.vert", 
-				"shaders/trimesh_flat.frag", 
-				"shaders/trimesh_flat.geom");
-		
-		/*GLWireframeMesh glCollapsed = new GLWireframeMesh(collapsedWF);
-		glCollapsed.addElement(new ArrayList<>(Collections.nCopies(wf.vertices.size(), new Vector3f(1, 0, 0))), Semantic.USERSPECIFIED, "color");
-		glCollapsed.configurePreferredShader("shaders/trimesh_flat.vert", 
-				"shaders/trimesh_flat.frag", 
-				"shaders/trimesh_flat.geom");*/
-		
-		GLHalfEdgeStructure glNew = new GLHalfEdgeStructure(hs);
-		glNew.configurePreferredShader("shaders/trimesh_flat.vert", 
-				"shaders/trimesh_flat.frag", 
-				"shaders/trimesh_flat.geom");
+		GLWireframeMesh glwf = new GLWireframeMesh(wf);
 		
 		MyDisplay d = new MyDisplay();
-		d.addToDisplay(glNonCollapsed);
-		//d.addToDisplay(glCollapsed);
-		d.addToDisplay(glNew);
+		d.addToDisplay(glwf);
+
+		QSlim qs = new QSlim(hs);
+		float[] evs = new float[3];
+		for(Vertex v: hs.getVertices())
+		{
+			Matrix4f quadric = qs.getErrorQuadric(v);
+			Matrix3f quadricUpperLeft = new Matrix3f();
+			quadric.getRotationScale(quadricUpperLeft);
+			eigenValues(quadricUpperLeft, evs);
+			
+			Vector3f c = new Vector3f();
+			c.cross(v.getNormal(), v.getHalfEdge().getVec());
+			WireframeMesh ellipsoid = ellipsoid(v.getPos(), 
+					eigenVector(quadricUpperLeft, evs[0]), (float) (.01f / Math.sqrt(evs[0])), 
+					eigenVector(quadricUpperLeft, evs[1]), (float) (.01f / Math.sqrt(evs[1])), 
+					eigenVector(quadricUpperLeft, evs[2]), (float) (.01f / Math.sqrt(evs[2])));
+					/*v.getNormal(), .1f, 
+					v.getHalfEdge().getVec(), .1f,
+					c, .1f);*/
+					
+			GLWireframeMesh glEllipsoid = new GLWireframeMesh(ellipsoid);
+			glEllipsoid.configurePreferredShader("shaders/trimesh_flat.vert", "shaders/trimesh_flat.frag", "shaders/trimesh_flat.geom");
+			glEllipsoid.setName("Ellipsoid " + v.index);
+			d.addToDisplay(glEllipsoid);
+		}
+		
+		
+		
+		
 		
 		
 		

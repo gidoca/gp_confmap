@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import javax.vecmath.Vector3f;
+import javax.vecmath.Vector4f;
 
 /**
  * Implementation of a face for the {@link HalfEdgeStructure}
@@ -161,6 +162,13 @@ public class Face extends HEElement {
 		HalfEdge edge2 = this.anEdge.getNext();
 		out.cross(edge1.getVec(), edge2.getVec());
 		out.normalize();
+		return out;
+	}
+	
+	public Vector4f plane() {
+		Vector3f normal = normal();
+		Vector4f out = new Vector4f(normal);
+		out.w = -normal.dot(new Vector3f(anEdge.start().getPos()));
 		return out;
 	}
 }

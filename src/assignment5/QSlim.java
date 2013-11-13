@@ -1,17 +1,13 @@
 package assignment5;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.PriorityQueue;
+import helper.Iter;
 
-import javax.vecmath.Point3f;
-import javax.vecmath.Point4f;
-import javax.vecmath.Vector3f;
+import java.util.HashMap;
+
+import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector4f;
 
 import meshes.Face;
-import meshes.HEData;
-import meshes.HalfEdge;
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
 import openGL.objects.Transformation;
@@ -25,11 +21,18 @@ import openGL.objects.Transformation;
  */
 public class QSlim {
 	
-	HalfEdgeStructure hs;
+	private HalfEdgeStructure hs;
+	
+	private HashMap<Vertex, Matrix4f> errorQuadrics;
 	
 	/********************************************
 	 * Use or discard the skeleton, as you like.
 	 ********************************************/
+	
+	public QSlim(HalfEdgeStructure hs) {
+		this.hs = hs;
+		this.init();
+	}
 	
 	
 	/**
@@ -38,7 +41,27 @@ public class QSlim {
 	 * Fill up the Priority queue/heap or similar
 	 */
 	private void init(){
+		this.errorQuadrics = new HashMap<Vertex, Matrix4f>();
 		
+		for(Vertex v: hs.getVertices())
+		{
+			Matrix4f out = new Matrix4f();
+			for(Face f: Iter.ate(v.iteratorVF()))
+			{
+				float[] planeArray = new float[4];
+				f.plane().get(planeArray);
+				Matrix4f errorQuadric = new Matrix4f();
+				for(int i = 0; i < 4; i++)
+				{
+					for(int j = 0; j < 4; j++)
+					{
+						errorQuadric.setElement(i, j, planeArray[i] * planeArray[j]);
+					}
+				}
+				out.add(errorQuadric);
+			}
+			this.errorQuadrics.put(v, out);
+		}
 	}
 	
 	
@@ -58,6 +81,11 @@ public class QSlim {
 	 */
 	public void collapsEdge(){
 		
+	}
+	
+	public Matrix4f getErrorQuadric(Vertex v)
+	{
+		return errorQuadrics.get(v);
 	}
 	
 	/**
