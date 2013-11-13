@@ -104,8 +104,9 @@ public class HalfEdgeCollapse {
 	 * @param e
 	 * @param hs
 	 */
-	void collapseEdge(HalfEdge e){
+	public void collapseEdge(HalfEdge e){
 		assert(isEdgeCollapsable(e));
+		assert(!isEdgeDead(e));
 		
 		//First step:
 		//relink the vertices to safe edges. don't iterate 
@@ -155,7 +156,7 @@ public class HalfEdgeCollapse {
 	/**
 	 * Delete the collected dead vertices, faces, edges and tidy up the Halfedge structure.
 	 */
-	void finish(){
+	public void finish(){
 				
 		hs.getFaces().removeAll(deadFaces);
 		hs.getVertices().removeAll(deadVertices);

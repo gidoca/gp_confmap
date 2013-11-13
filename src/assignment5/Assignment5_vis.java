@@ -11,6 +11,8 @@ import javax.vecmath.Matrix3f;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
 
+import algorithms.DegenerateTriangleRemover;
+
 import meshes.HalfEdge;
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
@@ -29,10 +31,8 @@ import openGL.objects.Transformation;
  */
 public class Assignment5_vis {
 	
-	public static final float collapseRatio = .1f;
-
 	public static void main(String[] args) throws Exception{
-		WireframeMesh wf = ObjReader.read("objs/dragon.obj", true);
+		WireframeMesh wf = ObjReader.read("objs/buddha.obj", true);
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 		hs.init(wf);
 		
@@ -46,39 +46,8 @@ public class Assignment5_vis {
 		nonCollapsedWF.vertices = wf.vertices;
 		nonCollapsedWF.faces = new ArrayList<int[]>(wf.faces);
 
-		HalfEdgeCollapse collaptor = new HalfEdgeCollapse(hs);
-		Random ran = new Random(1);
-		final int numV = hs.getVertices().size();
-		for(int i = 0; i < collapseRatio * numV; i++)
-		{
-			int index = ran.nextInt(hs.getHalfEdges().size());
-			HalfEdge e = hs.getHalfEdges().get(index);
-			if(collaptor.isEdgeDead(e)) continue;
-			if(collaptor.isCollapseMeshInv(e, e.end().getPos()))
-			{
-				e = e.getOpposite();
-			}
-			if(!HalfEdgeCollapse.isEdgeCollapsable(e) || collaptor.isCollapseMeshInv(e, e.end().getPos()))
-			{
-				continue;
-			}
-			/*for(int j = 0; j < nonCollapsedWF.faces.size(); j++)
-			{
-				boolean containsStart = false, containsEnd = false;
-				int[] vIndices = nonCollapsedWF.faces.get(i);
-				for(int k = 0; k < vIndices.length; k++)
-				{
-					if(vIndices[k] == e.start().index) containsStart = true;
-					if(vIndices[k] == e.end().index) containsEnd = true;
-				}
-				if(containsStart && containsEnd)
-				{
-					collapsedWF.faces.add(nonCollapsedWF.faces.remove(index));
-				}
-			}*/
-			collaptor.collapseEdge(e);
-		}
-		collaptor.finish();
+		DegenerateTriangleRemover dtr = new DegenerateTriangleRemover(hs, .0001f);
+		dtr.apply();
 		System.out.println(hs.getVertices().size());
 		
 		
