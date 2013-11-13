@@ -3,11 +3,14 @@ package assignment5;
 import helper.Iter;
 
 import java.util.HashMap;
+import java.util.PriorityQueue;
 
 import javax.vecmath.Matrix4f;
+import javax.vecmath.Point3f;
 import javax.vecmath.Vector4f;
 
 import meshes.Face;
+import meshes.HalfEdge;
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
 import openGL.objects.Transformation;
@@ -22,8 +25,12 @@ import openGL.objects.Transformation;
 public class QSlim {
 	
 	private HalfEdgeStructure hs;
+	private HalfEdgeCollapse collaptor;
 	
 	private HashMap<Vertex, Matrix4f> errorQuadrics;
+	private HashMap<HalfEdge, PotentialCollapse> potentialCollapses;
+	
+	private PriorityQueue<PotentialCollapse> collapseQueue;
 	
 	/********************************************
 	 * Use or discard the skeleton, as you like.
@@ -31,6 +38,8 @@ public class QSlim {
 	
 	public QSlim(HalfEdgeStructure hs) {
 		this.hs = hs;
+		this.collaptor = new HalfEdgeCollapse(hs);
+		this.potentialCollapses = new HashMap<HalfEdge, QSlim.PotentialCollapse>();
 		this.init();
 	}
 	
@@ -62,6 +71,13 @@ public class QSlim {
 			}
 			this.errorQuadrics.put(v, out);
 		}
+		
+		this.collapseQueue = new PriorityQueue<>();
+		
+		for(HalfEdge e: hs.getHalfEdges())
+		{
+			this.collapseQueue.add(new PotentialCollapse(e));
+		}
 	}
 	
 	
@@ -71,7 +87,21 @@ public class QSlim {
 	 * @param target
 	 */
 	public void simplify(int target){
-		
+		while(hs.getVertices().size() - collaptor.deadVertices.size() > target)
+		{
+			PotentialCollapse next = collapseQueue.poll();
+			if(next == null) break;
+			if(next.isDeleted) continue;
+			assert(!collaptor.isEdgeDead(next.edge));
+			if(!HalfEdgeCollapse.isEdgeCollapsable(next.edge) )//|| collaptor.isCollapseMeshInv(next.edge, next.newpos))
+			{
+				next.cost = (next.cost + 0.1f) * 10;
+				next.updateQueuePos();
+				continue;
+			}
+			next.collapse();
+		}
+		collaptor.finish();
 	}
 	
 	
@@ -116,10 +146,71 @@ public class QSlim {
 	 *
 	 */
 	protected class PotentialCollapse implements Comparable<PotentialCollapse>{
+		
+		float cost;
+		HalfEdge edge;
+		boolean isDeleted;
+		Point3f newpos;
+		private Matrix4f newErrorQuadric;
+		
+		public PotentialCollapse(HalfEdge edge) {
+			isDeleted = false;
+			this.edge = edge;
+			updateNewPos();
+			QSlim.this.potentialCollapses.put(edge, this);
+		}
+		
+		public void collapse()
+		{
+			isDeleted = true;
+			Point3f pos = edge.end().getPos();
+			QSlim.this.collaptor.collapseEdge(edge);
+			pos.set(newpos);
+			errorQuadrics.put(edge.end(), newErrorQuadric);
+			for(HalfEdge e: Iter.ate(edge.end().iteratorVE()))
+			{
+				PotentialCollapse potentialCollapse = potentialCollapses.get(e);
+				potentialCollapse.updateNewPos();
+				potentialCollapse.updateQueuePos();
+			}
+		}
+		
+		public void updateQueuePos()
+		{
+			PotentialCollapse updated = new PotentialCollapse(this);
+			this.isDeleted = true;
+			QSlim.this.collapseQueue.add(updated);
+		}
+		
+		private void updateNewPos()
+		{
+			newpos = new Point3f(edge.start().getPos());
+			newpos.add(edge.end().getPos());
+			newpos.scale(1/2.f);
+			Vector4f newPos4 = new Vector4f(newpos);
+			newPos4.w = 1;
+			newErrorQuadric = new Matrix4f(errorQuadrics.get(edge.start()));
+			
+			Vertex vertex = edge.end();
+			Matrix4f endQuadric = errorQuadrics.get(vertex );
+			assert(errorQuadrics.size() == hs.getVertices().size());
+			newErrorQuadric.add(endQuadric );
+			Vector4f tNewPos = new Vector4f();
+			newErrorQuadric.transform(newPos4, tNewPos);
+			this.cost = newPos4.dot(tNewPos);			
+		}
+		
+		public PotentialCollapse(PotentialCollapse other)
+		{
+			this.cost = other.cost;
+			this.edge = other.edge;
+			this.isDeleted = other.isDeleted;
+			this.newpos = other.newpos;
+		}
 
 		@Override
 		public int compareTo(PotentialCollapse arg1) {
-			return -1;
+			return new Float(-cost).compareTo(new Float(-arg1.cost));
 		}
 	}
 

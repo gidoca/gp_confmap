@@ -46,15 +46,10 @@ public class Assignment5_vis {
 			quadric.getRotationScale(quadricUpperLeft);
 			eigenValues(quadricUpperLeft, evs);
 			
-			Vector3f c = new Vector3f();
-			c.cross(v.getNormal(), v.getHalfEdge().getVec());
 			WireframeMesh ellipsoid = ellipsoid(v.getPos(), 
-					eigenVector(quadricUpperLeft, evs[0]), (float) (.01f / Math.sqrt(evs[0])), 
-					eigenVector(quadricUpperLeft, evs[1]), (float) (.01f / Math.sqrt(evs[1])), 
-					eigenVector(quadricUpperLeft, evs[2]), (float) (.01f / Math.sqrt(evs[2])));
-					/*v.getNormal(), .1f, 
-					v.getHalfEdge().getVec(), .1f,
-					c, .1f);*/
+					eigenVector(quadricUpperLeft, evs[0]), (float) (.04f / Math.sqrt(evs[0])), 
+					eigenVector(quadricUpperLeft, evs[1]), (float) (.04f / Math.sqrt(evs[1])), 
+					eigenVector(quadricUpperLeft, evs[2]), (float) (.04f / Math.sqrt(evs[2])));
 					
 			GLWireframeMesh glEllipsoid = new GLWireframeMesh(ellipsoid);
 			glEllipsoid.configurePreferredShader("shaders/trimesh_flat.vert", "shaders/trimesh_flat.frag", "shaders/trimesh_flat.geom");
