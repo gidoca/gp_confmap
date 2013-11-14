@@ -39,7 +39,7 @@ public class Assignment5_vis {
 		d.addToDisplay(glwf);
 
 		QSlim qs = new QSlim(hs);
-		//qs.simplify(36);
+		qs.simplify(4);
 		float[] evs = new float[3];
 		for(Vertex v: hs.getVertices())
 		{
@@ -61,7 +61,7 @@ public class Assignment5_vis {
 		
 		
 		GLHalfEdgeStructure glSimplified = new GLHalfEdgeStructure(hs);
-		glSimplified.configurePreferredShader("shaders/trimesh_flatColor3f.vert", "shaders/trimesh_flatColor3f.frag", "shaders/trimesh_flatColor3f.geom");
+		glSimplified.configurePreferredShader("shaders/trimesh_flat.vert", "shaders/trimesh_flat.frag", "shaders/trimesh_flat.geom");
 		glSimplified.setName("simplified");
 		
 		d.addToDisplay(glSimplified);

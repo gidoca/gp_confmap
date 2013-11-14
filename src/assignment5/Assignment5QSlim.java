@@ -27,7 +27,7 @@ public class Assignment5QSlim {
 		System.out.println(hs.getVertices().size());
 		
 		QSlim qslim = new QSlim(hs);
-		qslim.simplify(40000);
+		qslim.simplify(1500);
 
 		System.out.println(hs.getVertices().size());
 		

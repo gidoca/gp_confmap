@@ -103,13 +103,17 @@ public class QSlim {
 		while(hs.getVertices().size() - collaptor.deadVertices.size() > target)
 		{
 			PotentialCollapse next = collapseQueue.poll();
+			//System.out.println(next.cost);
+			
 			if(next == null) break;
 			if(next.isDeleted || collaptor.isEdgeDead(next.edge)) continue;
+			
 			assert(!collaptor.isEdgeDead(next.edge));
 			if(!HalfEdgeCollapse.isEdgeCollapsable(next.edge) || collaptor.isCollapseMeshInv(next.edge, next.newpos))
 			{
-				next.cost = (next.cost + 0.1f) * 10;
-				next.updateQueuePos();
+				PotentialCollapse updated = new PotentialCollapse(next);
+				updated.cost = (next.cost + 0.1f) * 10;
+				next.updateQueuePos(updated);
 				continue;
 			}
 			next.collapse();
@@ -156,9 +160,14 @@ public class QSlim {
 		public void collapse()
 		{
 			assert(!isDeleted);
+			/*System.out.println(this.cost);
+			System.out.println(this.edge);*/
 			isDeleted = true;
 			Point3f pos = edge.end().getPos();
+			Vertex start = edge.start(), end = edge.end();
 			QSlim.this.collaptor.collapseEdge(edge);
+			assert(collaptor.isVertexDead(start));
+			assert(!collaptor.isVertexDead(end));
 			pos.set(newpos);
 			assert(newErrorQuadric != null);
 			errorQuadrics.put(edge.end(), newErrorQuadric);
@@ -171,13 +180,13 @@ public class QSlim {
 		
 		private void updateCollapse()
 		{
-			this.updateNewPos();
-			this.updateQueuePos();
+			PotentialCollapse pc = new PotentialCollapse(this);
+			pc.updateNewPos();
+			this.updateQueuePos(pc);
 		}
 		
-		public void updateQueuePos()
+		public void updateQueuePos(PotentialCollapse updated)
 		{
-			PotentialCollapse updated = new PotentialCollapse(this);
 			this.isDeleted = true;
 			QSlim.this.collapseQueue.add(updated);
 		}
@@ -212,6 +221,11 @@ public class QSlim {
 		@Override
 		public int compareTo(PotentialCollapse arg1) {
 			return new Float(cost).compareTo(new Float(arg1.cost));
+		}
+		
+		public String toString()
+		{
+			return "Cost " + cost + " Edge " + edge;
 		}
 	}
 
