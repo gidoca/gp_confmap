@@ -8,6 +8,7 @@ import java.util.PriorityQueue;
 
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Point3f;
+import javax.vecmath.SingularMatrixException;
 import javax.vecmath.Vector4f;
 
 import meshes.Face;
@@ -116,6 +117,7 @@ public class QSlim {
 				continue;
 			}
 			next.collapse();
+			System.out.println(hs.getVertices().size() - collaptor.deadVertices.size() - target);
 		}
 		collaptor.finish();
 	}
@@ -185,18 +187,39 @@ public class QSlim {
 		
 		private void updateNewPos()
 		{
-			newpos = new Point3f(edge.end().getPos());
-			newpos.add(edge.start().getPos());
-			newpos.scale(1/2.f);
-			Vector4f newPos4 = new Vector4f(newpos);
-			newPos4.w = 1;
-			
 			assert(errorQuadrics.size() == hs.getVertices().size());
 			newErrorQuadric = new Matrix4f(errorQuadrics.get(edge.start()));
 			newErrorQuadric.add(errorQuadrics.get(edge.end()));
+			newpos = optimizedPos();
 			Vector4f tNewPos = new Vector4f();
+			Vector4f newPos4 = new Vector4f(newpos);
+			newPos4.w = 1;
 			newErrorQuadric.transform(newPos4, tNewPos);
-			this.cost = newPos4.dot(tNewPos);			
+			this.cost = newPos4.dot(tNewPos);
+			if(cost < 0) cost = 0;
+			assert(cost >= 0);
+		}
+		
+		private Point3f optimizedPos()
+		{
+			Matrix4f a = new Matrix4f(newErrorQuadric);
+			a.setRow(3, 0, 0, 0, 1);
+			Vector4f b = new Vector4f(0, 0, 0, 1);
+			try
+			{
+				a.invert();
+			}
+			catch(SingularMatrixException e)
+			{
+				Point3f pos = new Point3f(edge.end().getPos());
+				pos.add(edge.start().getPos());
+				pos.scale(1/2.f);
+				return pos;
+			}
+			Vector4f out = new Vector4f();
+			a.transform(b, out);
+			out.scale(1.f / out.w);
+			return new Point3f(out.x, out.y, out.z);
 		}
 		
 		private PotentialCollapse(PotentialCollapse other)
