@@ -108,7 +108,6 @@ public class QSlim {
 			if(next == null) break;
 			if(next.isDeleted || collaptor.isEdgeDead(next.edge)) continue;
 			
-			assert(!collaptor.isEdgeDead(next.edge));
 			if(!HalfEdgeCollapse.isEdgeCollapsable(next.edge) || collaptor.isCollapseMeshInv(next.edge, next.newpos))
 			{
 				PotentialCollapse updated = new PotentialCollapse(next);
@@ -121,14 +120,6 @@ public class QSlim {
 		collaptor.finish();
 	}
 	
-	
-	/**
-	 * Collapse the next cheapest eligible edge. ; this method can be called
-	 * until some target number of vertices is reached.
-	 */
-	public void collapsEdge(){
-		
-	}
 	
 	public Matrix4f getErrorQuadric(Vertex v)
 	{
@@ -163,8 +154,8 @@ public class QSlim {
 			/*System.out.println(this.cost);
 			System.out.println(this.edge);*/
 			isDeleted = true;
-			Point3f pos = edge.end().getPos();
 			Vertex start = edge.start(), end = edge.end();
+			Point3f pos = end.getPos();
 			QSlim.this.collaptor.collapseEdge(edge);
 			assert(collaptor.isVertexDead(start));
 			assert(!collaptor.isVertexDead(end));
@@ -188,22 +179,21 @@ public class QSlim {
 		public void updateQueuePos(PotentialCollapse updated)
 		{
 			this.isDeleted = true;
+			QSlim.this.potentialCollapses.put(edge, updated);
 			QSlim.this.collapseQueue.add(updated);
 		}
 		
 		private void updateNewPos()
 		{
-			newpos = new Point3f(edge.start().getPos());
-			newpos.add(edge.end().getPos());
+			newpos = new Point3f(edge.end().getPos());
+			newpos.add(edge.start().getPos());
 			newpos.scale(1/2.f);
 			Vector4f newPos4 = new Vector4f(newpos);
 			newPos4.w = 1;
-			newErrorQuadric = new Matrix4f(errorQuadrics.get(edge.start()));
 			
-			Vertex vertex = edge.end();
-			Matrix4f endQuadric = errorQuadrics.get(vertex );
 			assert(errorQuadrics.size() == hs.getVertices().size());
-			newErrorQuadric.add(endQuadric );
+			newErrorQuadric = new Matrix4f(errorQuadrics.get(edge.start()));
+			newErrorQuadric.add(errorQuadrics.get(edge.end()));
 			Vector4f tNewPos = new Vector4f();
 			newErrorQuadric.transform(newPos4, tNewPos);
 			this.cost = newPos4.dot(tNewPos);			

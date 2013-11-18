@@ -38,8 +38,10 @@ public class Assignment5_vis {
 		MyDisplay d = new MyDisplay();
 		d.addToDisplay(glwf);
 
+		System.out.println(hs.getVertices().size());
 		QSlim qs = new QSlim(hs);
-		qs.simplify(4);
+		qs.simplify(20);
+		System.out.println(hs.getVertices().size());
 		float[] evs = new float[3];
 		for(Vertex v: hs.getVertices())
 		{
