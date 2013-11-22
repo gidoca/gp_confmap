@@ -21,7 +21,7 @@ import openGL.gl.GLDisplayable.Semantic;
 
 public class Assignment5RandomCollapse {
 
-	public static final float collapseRatio = .1f;
+	public static final float collapseRatio = .5f;
 
 	/**
 	 * @param args

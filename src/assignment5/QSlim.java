@@ -112,7 +112,8 @@ public class QSlim {
 			if(!HalfEdgeCollapse.isEdgeCollapsable(next.edge) || collaptor.isCollapseMeshInv(next.edge, next.newpos))
 			{
 				PotentialCollapse updated = new PotentialCollapse(next);
-				updated.cost = (next.cost + 0.1f) * 10;
+				updated.cost = Math.max((next.cost + 0.1f) * 10, 0);//collapseQueue.peek().cost + 0.1f);
+				if(updated.cost < -1e-2) System.out.println(updated.cost);
 				next.updateQueuePos(updated);
 				continue;
 			}
@@ -196,8 +197,11 @@ public class QSlim {
 			newPos4.w = 1;
 			newErrorQuadric.transform(newPos4, tNewPos);
 			this.cost = newPos4.dot(tNewPos);
-			if(cost < 0) cost = 0;
-			assert(cost >= 0);
+			if(cost < -1e-2)
+			{
+				System.out.println(cost);
+				//cost = 0;
+			}
 		}
 		
 		private Point3f optimizedPos()
@@ -205,17 +209,14 @@ public class QSlim {
 			Matrix4f a = new Matrix4f(newErrorQuadric);
 			a.setRow(3, 0, 0, 0, 1);
 			Vector4f b = new Vector4f(0, 0, 0, 1);
-			try
-			{
-				a.invert();
-			}
-			catch(SingularMatrixException e)
+			if(Math.abs(a.determinant()) < 1e-3)
 			{
 				Point3f pos = new Point3f(edge.end().getPos());
 				pos.add(edge.start().getPos());
 				pos.scale(1/2.f);
 				return pos;
 			}
+			a.invert();
 			Vector4f out = new Vector4f();
 			a.transform(b, out);
 			out.scale(1.f / out.w);
