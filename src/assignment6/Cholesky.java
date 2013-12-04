@@ -9,6 +9,7 @@ import no.uib.cipr.matrix.UpperTriangDenseMatrix;
 import no.uib.cipr.matrix.sparse.CompRowMatrix;
 import sparse.CSRMatrix;
 import sparse.CSRMatrix.col_val;
+import sparse.solver.Solver;
 import sparse.SparseTools;
 
 /**
@@ -20,13 +21,14 @@ import sparse.SparseTools;
  * @author Alf
  *
  */
-public class Cholesky {
+public class Cholesky extends Solver {
 
 	
 	private DenseCholesky chl;
 	DenseMatrix b;
 	private CSRMatrix sparse_u;
 	private CSRMatrix sparse_uT;
+	private CSRMatrix inMatrix;
 	
 	ArrayList<Float> z;
 
@@ -39,6 +41,7 @@ public class Cholesky {
 	 * @param m
 	 */
 	public Cholesky(CSRMatrix m){
+		inMatrix = m;
 		assert(m.nCols == m.nRows);
 		CompRowMatrix mat = SparseTools.createCRMatrix(m);
 		
@@ -154,5 +157,11 @@ public class Cholesky {
 	public void solve(ArrayList<Float> b, ArrayList<Float> x){
 		forwardSubst(z, b);
 		backwardSubst(x, z);
+	}
+
+	@Override
+	public void solve(CSRMatrix mat, ArrayList<Float> b, ArrayList<Float> x) {
+		if(mat != inMatrix) throw new IllegalArgumentException();
+		solve(b, x);
 	}
 }

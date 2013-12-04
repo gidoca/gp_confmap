@@ -80,12 +80,22 @@ public class LMatrices {
 		return out;
 	}
 	
+	public static CSRMatrix symmetricCotanLaplacian(HalfEdgeStructure hs)
+	{
+		return symmetricCotanLaplacian(hs, true);
+	}
+	
+	public static CSRMatrix unweightedCotanLaplacian(HalfEdgeStructure hs)
+	{
+		return symmetricCotanLaplacian(hs, false);
+	}
+	
 	/**
 	 * A symmetric cotangent Laplacian, cf Assignment 4, exercise 4.
 	 * @param hs
 	 * @return
 	 */
-	public static CSRMatrix symmetricCotanLaplacian(HalfEdgeStructure hs){
+	private static CSRMatrix symmetricCotanLaplacian(HalfEdgeStructure hs, boolean normalize){
 		CSRMatrix out = new CSRMatrix(0, hs.getVertices().size());
 		for(Vertex v: hs.getVertices())
 		{
@@ -98,11 +108,12 @@ public class LMatrices {
 				float a1 = e.getNext().getIncidentAngle();
 				float cotA1 = (float) (1.f / Math.tan(a1));
 				final float CLAMP = 1e2f;
-				if(Math.abs(cotA1) > CLAMP) cotA1 = (float) (CLAMP * Math.signum(cotA1));
+				//if(Math.abs(cotA1) > CLAMP) cotA1 = (float) (CLAMP * Math.signum(cotA1));
 				float a2 = e.getOpposite().getNext().getIncidentAngle();
 				float cotA2 = (float) (1.f / Math.tan(a2));
-				if(Math.abs(cotA2) > CLAMP) cotA2 = (float) (CLAMP * Math.signum(cotA2));
-				float weight = (float) ((cotA1 + cotA2) / Math.sqrt(4 * v.mixedArea() * e.start().mixedArea()));
+				//if(Math.abs(cotA2) > CLAMP) cotA2 = (float) (CLAMP * Math.signum(cotA2));
+				float weight = cotA1 + cotA2;
+				if(normalize) weight /= Math.sqrt(4 * v.mixedArea() * e.start().mixedArea());
 				assert(v != e.start());
 				
 				assert(weight*0 == 0);

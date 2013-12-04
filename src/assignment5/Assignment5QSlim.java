@@ -14,7 +14,7 @@ public class Assignment5QSlim {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		WireframeMesh wf = ObjReader.read("objs/dragon3.obj", true);
+		WireframeMesh wf = ObjReader.read("objs/armadillo_1000.obj", true);
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 		hs.init(wf);
 		
@@ -27,7 +27,7 @@ public class Assignment5QSlim {
 		System.out.println(hs.getVertices().size());
 		
 		QSlim qslim = new QSlim(hs);
-		qslim.simplify(20000);
+		qslim.simplify(200);
 
 		System.out.println(hs.getVertices().size());
 		

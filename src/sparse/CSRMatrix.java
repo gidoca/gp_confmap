@@ -8,6 +8,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.vecmath.Vector3f;
+
 
 /**
  * A sparse matrix container in CSR format, to allow Solver Library independent
@@ -320,6 +322,44 @@ public class CSRMatrix {
 		public String toString(){
 			return "("+ this.col + "," + this.val + ") ";
 		}
+	}
+	
+	public ArrayList<Vector3f> mult(ArrayList<Vector3f> x)
+	{
+		assert(x.size() == nCols);
+		ArrayList<float[]> resA = new ArrayList<float[]>();
+		resA.ensureCapacity(nRows);
+		ArrayList<Vector3f> out = new ArrayList<Vector3f>();
+		out.ensureCapacity(nRows);
+		for(int i = 0; i < nRows; i++)
+		{
+			out.add(new Vector3f());
+			resA.add(new float[3]);
+		}
+		
+		for(int i = 0; i < 3; i++)
+		{
+			ArrayList<Float> xs = new ArrayList<Float>();
+			xs.ensureCapacity(nCols);
+			for(int j = 0; j < nCols; j++)
+			{
+				float[] values = new float[3];
+				x.get(j).get(values);
+				xs.add(values[i]);
+			}
+			ArrayList<Float> res = new ArrayList<Float>();
+			mult(xs, res);
+			for(int j = 0; j < nRows; j++)
+			{
+				resA.get(j)[i] = res.get(j);
+			}
+		}
+		
+		for(int i = 0; i < nRows; i++)
+		{
+			out.get(i).set(resA.get(i));
+		}
+		return out;
 	}
 
 /* ********************************************************************************/

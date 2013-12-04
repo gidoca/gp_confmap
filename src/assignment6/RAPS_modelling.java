@@ -1,5 +1,7 @@
 package assignment6;
 
+import helper.Iter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -8,9 +10,12 @@ import javax.vecmath.Matrix3f;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 
+import org.omg.CORBA.CTX_RESTRICT_SCOPE;
+
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
 import sparse.CSRMatrix;
+import assignment4.LMatrices;
 
 
 
@@ -20,6 +25,8 @@ import sparse.CSRMatrix;
  *
  */
 public class RAPS_modelling {
+	
+	private static final float userWeight = 100; 
 
 	//ArrayList containing all optimized rotations,
 	//keyed by vertex.index
@@ -36,18 +43,19 @@ public class RAPS_modelling {
 	//It can be computed once at setup time and then be reused
 	//to compute the matrix needed for position optimization
 	CSRMatrix L_cotan;
+	CSRMatrix L_transposed;
 	//The matrix used when solving for optimal positions
 	CSRMatrix L_deform;
 	
 	//allocate righthand sides and x only once.
-	ArrayList<Float>[] b;
+	ArrayList<Vector3f> b;
 	ArrayList<Float> x;
 
 	//sets of vertex indices that are constrained.
 	private HashSet<Integer> keepFixed;
 	private HashSet<Integer> deform;
 
-		
+	private Cholesky cotanCholesky;
 	
 	
 	
@@ -92,7 +100,36 @@ public class RAPS_modelling {
 	 * Good place to do the cholesky decompositoin
 	 */
 	public void updateL() {
-		//do your stuff
+		rotations = new ArrayList<Matrix3f>();
+		rotations.ensureCapacity(hs_originl.getVertices().size());
+		for(Vertex v: hs_originl.getVertices())
+		{
+			if(v.isOnBoundary())
+			{
+				keepFixed.add(v.index);
+			}
+			Matrix3f m = new Matrix3f();
+			m.setIdentity();
+			rotations.add(m);
+		}
+		L_cotan = LMatrices.unweightedCotanLaplacian(hs_originl);
+		//L_cotan.scale(-1);
+		L_transposed = L_cotan.transposed();
+		CSRMatrix L_nouser = new CSRMatrix(L_cotan.nRows, L_cotan.nCols);
+		L_transposed.multParallel(L_cotan, L_nouser);
+		CSRMatrix I_constr = new CSRMatrix(L_cotan.nRows, L_cotan.nCols);
+		for(int i: keepFixed)
+		{
+			I_constr.set(i, i, userWeight * userWeight);
+		}
+		for(int i: deform)
+		{
+			I_constr.set(i, i, userWeight * userWeight);
+		}
+		L_deform = new CSRMatrix(0, 0);
+		L_deform.add(I_constr, L_nouser);
+		assert(L_deform.isSymmetric(0.01f));
+		cotanCholesky = new Cholesky(L_deform);
 	}
 	
 	/**
@@ -103,7 +140,7 @@ public class RAPS_modelling {
 	public void deform(Matrix4f t, int nRefinements){
 		this.transformTarget(t);
 		
-		//RAPS algorithm,,
+		optimalPositions();
 	}
 	
 
@@ -143,16 +180,11 @@ public class RAPS_modelling {
 	 * @param hs
 	 */
 	private void init_b_x(HalfEdgeStructure hs) {
-		b = new ArrayList[3];
-		for(int i = 0; i < 3; i++){
-			b[i] = new ArrayList<>(hs.getVertices().size());
-			for(int j = 0; j < hs.getVertices().size(); j++){
-				b[i].add(0.f);
-			}
-		}
+		b = new ArrayList<Vector3f>();
 		x = new ArrayList<>(hs.getVertices().size());
 		for(int j = 0; j < hs.getVertices().size(); j++){
 			x.add(0.f);
+			b.add(new Vector3f());
 		}
 	}
 	
@@ -161,9 +193,28 @@ public class RAPS_modelling {
 	/**
 	 * Compute optimal positions for the current rotations.
 	 */
-	public void optimalPositions(){
-	
-		//do your stuff...
+	public void optimalPositions()
+	{
+		compute_b();
+		
+		ArrayList<Vector3f> rhs = L_transposed.mult(b);
+		for(int i = 0; i < rhs.size(); i++)
+		{
+			if(keepFixed.contains(i) || deform.contains(i))
+			{
+				Vector3f x = rhs.get(i);
+				Vector3f pos = new Vector3f(hs_deformed.getVertices().get(i).getPos());
+				pos.scale(userWeight * userWeight);
+				x.add(pos);
+			}
+		}
+		
+		ArrayList<Vector3f> res = cotanCholesky.solve(L_deform, rhs);
+		
+		for(int i = 0; i < res.size(); i++)
+		{
+			hs_deformed.getVertices().get(i).getPos().set(res.get(i));
+		}
 	}
 	
 
@@ -171,24 +222,28 @@ public class RAPS_modelling {
 	 * compute the righthand side for the position optimization
 	 */
 	private void compute_b() {
-		reset_b();
-		//do your stuff...
-		
-		
-	}
-
-
-
-	/**
-	 * helper method
-	 */
-	private void reset_b() {
-		for(int i = 0 ; i < 3; i++){
-			for(int j = 0; j < b[i].size(); j++){
-				b[i].set(j,0.f);
+		for(Vertex v: hs_originl.getVertices())
+		{
+			Vector3f b = new Vector3f();
+			
+			for(Vertex n: Iter.ate(v.iteratorVV()))
+			{
+				float w = L_cotan.get(v.index, n.index);
+				//float w = 0;
+				if(w == 0) continue;
+				Matrix3f r = new Matrix3f(rotations.get(v.index));
+				r.add(rotations.get(n.index));
+				Vector3f p = new Vector3f(v.getPos());
+				p.sub(n.getPos());
+				r.transform(p);
+				p.scale(-.5f * w);
+				b.add(p);
 			}
+			
+			this.b.set(v.index, b);
 		}
 	}
+
 
 
 	/**
@@ -197,7 +252,7 @@ public class RAPS_modelling {
 	 */
 	public void optimalRotations() {
 		//for the svd.
-		Linalg3x3 l = new Linalg3x3(10);// argument controls number of iterations for ed/svd decompositions 
+		Linalg3x3 l = new Linalg3x3(3);// argument controls number of iterations for ed/svd decompositions 
 										//3 = very low precision but high speed. 3 seems to be good enough
 			
 		//Note: slightly better results are achieved when the absolute of cotangent
