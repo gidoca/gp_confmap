@@ -8,9 +8,8 @@ import java.util.HashSet;
 
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Matrix4f;
+import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
-
-import org.omg.CORBA.CTX_RESTRICT_SCOPE;
 
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
@@ -140,7 +139,11 @@ public class RAPS_modelling {
 	public void deform(Matrix4f t, int nRefinements){
 		this.transformTarget(t);
 		
-		optimalPositions();
+		for(int i = 0; i < nRefinements; i++)
+		{
+			optimalPositions();
+			optimalRotations();
+		}
 	}
 	
 
@@ -259,7 +262,43 @@ public class RAPS_modelling {
 		//weights w_ij are used instead of plain cotangent weights.		
 			
 		//do your stuff..
-		
+		for(Vertex v: hs_deformed.getVertices())
+		{
+			Matrix3f transform = new Matrix3f();
+			Point3f vPos = hs_originl.getVertices().get(v.index).getPos();
+			Point3f vPrimePos = v.getPos();
+			for(Vertex n: Iter.ate(v.iteratorVV()))
+			{
+				float w = Math.abs(L_cotan.get(v.index, n.index));
+				Vector3f e = new Vector3f(vPos);
+				e.sub(hs_originl.getVertices().get(n.index).getPos());
+				Vector3f ePrime = new Vector3f(vPrimePos);
+				ePrime.sub(n.getPos());
+				Matrix3f eeT = new Matrix3f();
+				compute_ppT(e, ePrime, eeT);
+				eeT.mul(w);
+				transform.add(eeT);
+			}
+			
+			
+			Matrix3f u1 = new Matrix3f();
+			Matrix3f sigma = new Matrix3f();
+			Matrix3f u2 = new Matrix3f();
+			l.svd(transform, u1, sigma, u2);
+			
+			Matrix3f rot = u2;
+			u1.transpose();
+			if(u1.determinant() < 0)
+			{
+				Vector3f lastcol = new Vector3f();
+				u1.getColumn(2, lastcol);
+				lastcol.scale(-1);
+				u1.setColumn(2, lastcol);
+			}
+			rot.mul(u1);
+			
+			rotations.set(v.index, rot);
+		}
 	}
 
 	

@@ -108,10 +108,10 @@ public class LMatrices {
 				float a1 = e.getNext().getIncidentAngle();
 				float cotA1 = (float) (1.f / Math.tan(a1));
 				final float CLAMP = 1e2f;
-				//if(Math.abs(cotA1) > CLAMP) cotA1 = (float) (CLAMP * Math.signum(cotA1));
+				if(Math.abs(cotA1) > CLAMP) cotA1 = (float) (CLAMP * Math.signum(cotA1));
 				float a2 = e.getOpposite().getNext().getIncidentAngle();
 				float cotA2 = (float) (1.f / Math.tan(a2));
-				//if(Math.abs(cotA2) > CLAMP) cotA2 = (float) (CLAMP * Math.signum(cotA2));
+				if(Math.abs(cotA2) > CLAMP) cotA2 = (float) (CLAMP * Math.signum(cotA2));
 				float weight = cotA1 + cotA2;
 				if(normalize) weight /= Math.sqrt(4 * v.mixedArea() * e.start().mixedArea());
 				assert(v != e.start());
