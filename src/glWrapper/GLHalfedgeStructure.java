@@ -45,7 +45,7 @@ public class GLHalfedgeStructure extends GLDisplayable {
 	/**
 	 * For user specified objects, the specified object will tied to the shader attribute name.
 	 * @param objectToRender
-	 * @param s
+	 * @param lblScanner
 	 * @param name
 	 */
 	public void add(HEData1d oneDData, String name) {
@@ -59,7 +59,7 @@ public class GLHalfedgeStructure extends GLDisplayable {
 	/**
 	 * For user specified objects, the specified object will tied to the shader attribute name.
 	 * @param objectToRender
-	 * @param s
+	 * @param lblScanner
 	 * @param name
 	 */
 	public void add(HEData3d threeDData, String name) {

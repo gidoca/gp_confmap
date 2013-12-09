@@ -46,7 +46,7 @@ public class Face extends HEElement {
 		Vector3f e2 = anEdge.getNext().getVec();
 		Vector3f cross = new Vector3f();
 		cross.cross(e1, e2);
-		return cross.length() / 2;
+		return Math.abs(cross.length() / 2);
 	}
 	
 	

@@ -69,6 +69,7 @@ public class CSRMatrix {
 	
 	public void set(int row, int col, float val)
 	{
+		assert(val * 0 == 0);
 		if(val == 0)
 		{
 			reset(row, col);
@@ -94,6 +95,7 @@ public class CSRMatrix {
 	
 	public void setLastRow(int col, float val)
 	{
+		assert(val * 0 == 0);
 		set(nRows - 1, col, val);
 	}
 	
@@ -183,7 +185,7 @@ public class CSRMatrix {
 		assert(mat.nCols == nCols);
 		for(ArrayList<col_val> row: mat.rows){
 			this.addRow(row, scale);
-			
+			Collections.sort(lastRow());
 		}
 	}
 	

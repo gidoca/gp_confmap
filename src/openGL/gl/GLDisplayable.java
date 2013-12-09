@@ -3,6 +3,7 @@ package openGL.gl;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import javax.vecmath.Point2f;
 import javax.vecmath.Vector3f;
 
 import openGL.objects.Transformation;
@@ -172,6 +173,18 @@ public abstract class GLDisplayable {
 			f[i++] = v.z;
 		}
 		addElement(f, s, 3, name);
+	}
+
+	public void addElement2D(ArrayList<Point2f> vs, Semantic s, String name)
+	{
+		float[] f = new float[2 * vs.size()];
+		int i = 0;
+		for(Point2f v: vs)
+		{
+			f[i++] = v.x;
+			f[i++] = v.y;
+		}
+		addElement(f, s, 2, name);
 	}
 
 	public void addIndices(int[] indices) {

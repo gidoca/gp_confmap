@@ -33,7 +33,7 @@ public class DeformationPickingProcessor implements PickingProcessor{
 	private GLUpdatableHEStructure hs_visualization;
 	
 	
-	HashSet<Integer> set1, set2;
+	public HashSet<Integer> set1, set2;
 	
 	//colors to highlight selected regions
 	HEData3d colors;

@@ -20,5 +20,5 @@ void main()
 	// Note: gl_Position is a default output variable containing
 	// the transformed vertex position, this variable has to be computed
 	// either in the vertex shader or in the geometry shader, if present.
-	gl_Position = projection * modelview * position;
+	gl_Position = projection * modelview * vec4(normal, 1);
 }

@@ -81,6 +81,7 @@ public class RAPS_modelling {
 	public void keep(Collection<Integer> verts_idx) {
 		this.keepFixed.clear();
 		this.keepFixed.addAll(verts_idx);
+		System.out.println(verts_idx);
 
 	}
 	

@@ -11,6 +11,7 @@ in vec3 normal_g;
 out vec4 out_color;
 
 void main()
-{		
+{
+	
 	out_color = vec4(abs(normal_g), 1);
 }
