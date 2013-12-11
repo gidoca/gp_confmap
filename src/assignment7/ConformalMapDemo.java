@@ -1,11 +1,12 @@
 package assignment7;
 
+import glWrapper.GLHalfEdgeStructure;
+import glWrapper.GLUpdatableHEStructure;
+
 import java.util.HashMap;
 
 import javax.vecmath.Point2f;
 
-import glWrapper.GLHalfEdgeStructure;
-import glWrapper.GLUpdatableHEStructure;
 import meshes.HalfEdgeStructure;
 import meshes.WireframeMesh;
 import meshes.reader.ObjReader;
@@ -13,7 +14,6 @@ import openGL.MyDisplay;
 import openGL.MyPickingDisplay;
 import openGL.gl.GLDisplayable.Semantic;
 import algorithms.ConformalMapper;
-import assignment4.generatedMeshes.Bock;
 import assignment6.DeformationPickingProcessor;
 
 public class ConformalMapDemo {
@@ -24,17 +24,21 @@ public class ConformalMapDemo {
 	 */
 	public static void main(String[] args) throws Exception {
 //		WireframeMesh wf = ObjReader.read("./objs/head.obj", true);
-		WireframeMesh wf = ObjReader.read("./objs/testData/peter.obj", true);
+		System.out.println("Reading obj...");
+		WireframeMesh wf = ObjReader.read("./objs/faces/stefan_disk_remeshed.obj", true);
 //		WireframeMesh wf = new Bock(1, 1, 1).result;
+		System.out.println("Createing half edge structure");
 		
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 		hs.init(wf);
 		
-		LabelReader l = new LabelReader("labels/1nh.lbl", "labels/1nh.txc");
+		System.out.println("Reading labels");
+		LabelReader l = new LabelReader("labels/example.lbl", "labels/example.txc");
 		HashMap<Integer, Point2f> labels = l.read();
 		
+		GLConstraints glc = new GLConstraints(hs, labels);
+		System.out.println("Creating conformal-ish map");
 		
-
 		ConformalMapper mapper = new ConformalMapper(hs, labels);
 		mapper.compute();
 		System.out.println("Bla");
@@ -43,9 +47,14 @@ public class ConformalMapDemo {
 		glhs.addElement2D(mapper.get(), Semantic.POSITION, "pos");
 		glhs.configurePreferredShader("shaders/wiremesh.vert", "shaders/wiremesh.frag", "shaders/wiremesh.geom");
 		
+		GLHalfEdgeStructure glhs2 = new GLHalfEdgeStructure(hs);
+		glhs2.configurePreferredShader("shaders/wiremesh.vert", "shaders/wiremesh.frag", "shaders/wiremesh.geom");
+		
 		MyDisplay d = new MyDisplay();
 		
 		d.addToDisplay(glhs);
+		d.addToDisplay(glhs2);
+		d.addToDisplay(glc);
 		
 //		GLUpdatableHEStructure glHE = new GLUpdatableHEStructure(hs);
 //		MyPickingDisplay disp = new MyPickingDisplay();

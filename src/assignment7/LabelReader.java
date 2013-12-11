@@ -25,6 +25,11 @@ public class LabelReader {
 		
 		while(lblScanner.hasNext())
 		{
+			if(!lblScanner.hasNextInt())
+			{
+				lblScanner.nextLine();
+				continue;
+			}
 			index = lblScanner.nextInt();
 			labelname = lblScanner.next();
 			
@@ -36,11 +41,17 @@ public class LabelReader {
 		
 		while(txcScanner.hasNext())
 		{
+			if(!txcScanner.hasNextFloat())
+			{
+				txcScanner.nextLine();
+				continue;
+			}
 			Point2f p = new Point2f();
 			p.x = txcScanner.nextFloat();
 			p.y = txcScanner.nextFloat();
 			labelname = txcScanner.next();
 			out.put(lbl.get(labelname), p);
+			System.out.println(labelname + "=>" + p);
 		}
 		
 		return out;

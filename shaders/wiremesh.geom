@@ -10,7 +10,7 @@ uniform mat4 projection;
 //note that the maximum number of vertices passed to the fragment shader has
 //to be fixed.
 layout(triangles) in;
-layout(line_strip, max_vertices = 3) out;
+layout(line_strip, max_vertices = 4) out;
 
 //the variable passed in from the vertex shader
 //in geometry shaders the input is always organized as an array
@@ -28,11 +28,11 @@ void main()
 	//use a constant color
 	color_g = vec4(1f,0f,0f,1.f);
 	
-	for(int i=0; i<3; i++)
+	for(int i=0; i<4; i++)
 	{
 		//special GL variables that always have to be passed to the fragment shader:
 		//the final position
-		gl_Position = projection * (position_g[i]+0.001*normal_g.xyzz);
+		gl_Position = projection * (position_g[i%3]+0.001*normal_g.xyzz);
 		
 		//and some ID which can be left untouched but has to be passed explicitely.
 		gl_PrimitiveID = gl_PrimitiveIDIn;
