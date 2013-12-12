@@ -103,7 +103,7 @@ public class ObjReader {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	private static RawData readRawData(String fileName, boolean normalize) throws FileNotFoundException,
+	public static RawData readRawData(String fileName, boolean normalize) throws FileNotFoundException,
 			IOException {
 		BufferedReader reader;
 		RawData data = new RawData();

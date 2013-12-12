@@ -1,7 +1,6 @@
 package assignment7;
 
 import glWrapper.GLHalfEdgeStructure;
-import glWrapper.GLUpdatableHEStructure;
 
 import java.util.HashMap;
 
@@ -10,11 +9,10 @@ import javax.vecmath.Point2f;
 import meshes.HalfEdgeStructure;
 import meshes.WireframeMesh;
 import meshes.reader.ObjReader;
+import meshes.reader.ObjWriter;
 import openGL.MyDisplay;
-import openGL.MyPickingDisplay;
 import openGL.gl.GLDisplayable.Semantic;
 import algorithms.ConformalMapper;
-import assignment6.DeformationPickingProcessor;
 
 public class ConformalMapDemo {
 
@@ -25,15 +23,15 @@ public class ConformalMapDemo {
 	public static void main(String[] args) throws Exception {
 //		WireframeMesh wf = ObjReader.read("./objs/head.obj", true);
 		System.out.println("Reading obj...");
-		WireframeMesh wf = ObjReader.read("./objs/faces/stefan_disk_remeshed.obj", true);
+		WireframeMesh wf = ObjReader.read("./objs/faces/aaron_disk_remeshed.obj", true);
 //		WireframeMesh wf = new Bock(1, 1, 1).result;
-		System.out.println("Createing half edge structure");
+		System.out.println("Creating half edge structure");
 		
 		HalfEdgeStructure hs = new HalfEdgeStructure();
 		hs.init(wf);
 		
 		System.out.println("Reading labels");
-		LabelReader l = new LabelReader("labels/example.lbl", "labels/example.txc");
+		LabelReader l = new LabelReader("labels/aaron.lbl", "labels/example.txc");
 		HashMap<Integer, Point2f> labels = l.read();
 		
 		GLConstraints glc = new GLConstraints(hs, labels);
@@ -41,7 +39,12 @@ public class ConformalMapDemo {
 		
 		ConformalMapper mapper = new ConformalMapper(hs, labels);
 		mapper.compute();
-		System.out.println("Bla");
+		System.out.println("Done, writing OBJ");
+		
+		ObjWriter writer = new ObjWriter("aaron_tex.obj");
+		writer.writeTexcoord(mapper.get());
+		writer.write(hs);
+		writer.close();
 		
 		GLHalfEdgeStructure glhs = new GLHalfEdgeStructure(hs);
 		glhs.addElement2D(mapper.get(), Semantic.POSITION, "pos");

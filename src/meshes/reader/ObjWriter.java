@@ -21,7 +21,7 @@ import openGL.MyDisplay;
 public class ObjWriter {
 	FileWriter fw;
 	
-	ObjWriter(String file) throws IOException
+	public ObjWriter(String file) throws IOException
 	{
 		fw = new FileWriter("./out/"+file);
 	}
@@ -49,14 +49,14 @@ public class ObjWriter {
 		
 			Iterator<Vertex> it = f.iteratorFV();
 			int[] fc = {it.next().index, it.next().index, it.next().index};
-			fw.write("f " + (fc[0] + 1) + " " + (fc[1]+1) + " " + (fc[2]+1) + "\n");
+			fw.write("f " + (fc[0] + 1) + "/" + (fc[0] + 1) + " " + (fc[1]+1) + "/" + (fc[1] + 1) + " " + (fc[2]+1) + "/" + (fc[2] + 1) + "\n");
 		}
 	}
 	
 	public void writeTexcoord(ArrayList<Point2f> texcoords) throws IOException {
 		for(Point2f tc: texcoords)
 		{
-			fw.write("vt " + tc.x + " " + tc.y);
+			fw.write("vt " + String.format("%f", tc.x) + " " + String.format("%f", tc.y) + " 0\n");
 		}
 	}
 	
@@ -64,22 +64,4 @@ public class ObjWriter {
 	{
 		fw.close();
 	}
-	
-	public static void main(String[] args) throws IOException, MeshNotOrientedException, DanglingTriangleException{
-		WireframeMesh m = ObjReader.read("objs/bunny.obj", true);
-		
-		HalfEdgeStructure hs = new HalfEdgeStructure();
-		hs.init(m);
-		
-		ObjWriter writer = new ObjWriter("bla.obj");
-		writer.write(hs);
-		
-		m = ObjReader.read("out/bla.obj", true);
-		
-		GLWireframeMesh glwf = new GLWireframeMesh(m);
-		MyDisplay d = new MyDisplay();
-		d.addToDisplay(glwf);
-	}
-
-
 }

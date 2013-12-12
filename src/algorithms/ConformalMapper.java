@@ -12,6 +12,7 @@ import meshes.HalfEdge;
 import meshes.HalfEdgeStructure;
 import sparse.CSRMatrix;
 import sparse.MATLAB;
+import sparse.solver.SciPySolver;
 import sparse.solver.Solver;
 
 public class ConformalMapper {
@@ -65,7 +66,7 @@ public class ConformalMapper {
 			texcoords.add(p);
 		}
 		
-		/*Point2f max = null, min = null;
+		Point2f max = null, min = null;
 		for(Point2f p: texcoords)
 		{
 			if(max == null) max = new Point2f(p);
@@ -80,9 +81,10 @@ public class ConformalMapper {
 		
 		for(Point2f p: texcoords)
 		{
-			if(max.x != min.x) p.x = (p.x - min.x) / (max.x - min.x);
-			if(max.y != min.y) p.y = (p.y - min.y) / (max.y - min.y);
-		}*/
+			float maxDiff = Math.max(max.x - min.x, max.y - min.y);
+			if(max.x != min.x) p.x = (p.x - min.x) / maxDiff;
+			if(max.y != min.y) p.y = (p.y - min.y) / maxDiff;
+		}
 	}
 	
 	public CSRMatrix getMatrix(Face f)
