@@ -32,8 +32,8 @@ public class GLConstraints extends GLDisplayable {
 		}
 		
 		this.addIndices(ind);
-		this.addElement(pos, Semantic.POSITION, 3);
-		this.addElement2D(new ArrayList<>(labels.values()), Semantic.USERSPECIFIED, "texcoords");
+//		this.addElement(pos, Semantic.POSITION, 3);
+		this.addElement2D(new ArrayList<>(labels.values()), Semantic.POSITION, "texcoords");
 	}
 
 	@Override

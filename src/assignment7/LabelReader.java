@@ -10,6 +10,7 @@ import javax.vecmath.Point2f;
 public class LabelReader {
 	Scanner lblScanner;
 	Scanner txcScanner;
+	public HashMap<String, Integer> lbl;
 	
 	public LabelReader(String lblFilename, String txcFilename) throws FileNotFoundException {
 		lblScanner = new Scanner(new File(lblFilename));
@@ -21,7 +22,7 @@ public class LabelReader {
 		int index;
 		String labelname;
 		
-		HashMap<String, Integer> lbl = new HashMap<String, Integer>();
+		lbl = new HashMap<String, Integer>();
 		
 		while(lblScanner.hasNext())
 		{
@@ -33,7 +34,7 @@ public class LabelReader {
 			index = lblScanner.nextInt();
 			labelname = lblScanner.next();
 			
-			System.out.println("" + index + "=>" + labelname);
+			//System.out.println("" + index + "=>" + labelname);
 			lbl.put(labelname, index);
 		}
 		
@@ -50,8 +51,9 @@ public class LabelReader {
 			p.x = txcScanner.nextFloat();
 			p.y = txcScanner.nextFloat();
 			labelname = txcScanner.next();
+			assert(lbl.containsKey(labelname));
 			out.put(lbl.get(labelname), p);
-			System.out.println(labelname + "=>" + p);
+			//System.out.println(labelname + "=>" + p);
 		}
 		
 		return out;

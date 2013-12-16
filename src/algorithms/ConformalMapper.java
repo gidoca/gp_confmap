@@ -20,7 +20,7 @@ public class ConformalMapper {
 	private HashMap<Integer, Point2f> labels;
 	private HalfEdgeStructure hs;
 	
-	private static float userweight = 100000;
+	private static float userweight = 100;
 	
 	public ConformalMapper(HalfEdgeStructure hs, HashMap<Integer, Point2f> labels)
 	{
