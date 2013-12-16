@@ -2,7 +2,7 @@ package assignment7;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Scanner;
 
 import javax.vecmath.Point2f;
@@ -10,19 +10,19 @@ import javax.vecmath.Point2f;
 public class LabelReader {
 	Scanner lblScanner;
 	Scanner txcScanner;
-	public HashMap<String, Integer> lbl;
+	public LinkedHashMap<String, Integer> lbl;
 	
 	public LabelReader(String lblFilename, String txcFilename) throws FileNotFoundException {
 		lblScanner = new Scanner(new File(lblFilename));
 		txcScanner = new Scanner(new File(txcFilename));
 	}
 	
-	public HashMap<Integer, Point2f> read()
+	public LinkedHashMap<Integer, Point2f> read()
 	{
 		int index;
 		String labelname;
 		
-		lbl = new HashMap<String, Integer>();
+		lbl = new LinkedHashMap<String, Integer>();
 		
 		while(lblScanner.hasNext())
 		{
@@ -38,7 +38,7 @@ public class LabelReader {
 			lbl.put(labelname, index);
 		}
 		
-		HashMap<Integer, Point2f> out = new HashMap<Integer, Point2f>();
+		LinkedHashMap<Integer, Point2f> out = new LinkedHashMap<Integer, Point2f>();
 		
 		while(txcScanner.hasNext())
 		{

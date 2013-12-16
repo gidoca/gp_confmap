@@ -5,7 +5,7 @@ import glWrapper.GLWireframeMesh;
 
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import javax.vecmath.Point2f;
 import javax.vecmath.Point3f;
@@ -24,8 +24,8 @@ import algorithms.DelaunayTriangulation.Triangle;
 public class ConformalMapDemo {
 
 	private static HalfEdgeStructure hs;
-	private static HashMap<Integer, Point2f> labels;
-	private static HashMap<Integer, Point2f> allLabels;
+	private static LinkedHashMap<Integer, Point2f> labels;
+	private static LinkedHashMap<Integer, Point2f> allLabels;
 	private static WireframeMesh delaunayWf;
 
 	/**
@@ -159,7 +159,7 @@ public class ConformalMapDemo {
 		MyDisplay d = new MyDisplay();
 
 		GLConstraints glc = new GLConstraints(hs, getLabelCoords(texcoords));
-		glc.addElement2D(texcoords, Semantic.POSITION, "pos");
+//		glc.addElement2D(texcoords, Semantic.POSITION, "pos");
 		
 		System.out.println("Creating conformal-ish map");
 		

@@ -6,9 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.vecmath.Point2f;
-import javax.vecmath.Tuple2f;
 import javax.vecmath.Vector2f;
-import javax.vecmath.Vector3f;
 
 /**
  * User: nix Date: 03-Feb-2005 Time: 13:54:52 To change this template use Options | File Templates.
@@ -30,11 +28,6 @@ public class DelaunayTriangulation {
 		public int p2;
 		public int p3;
 		boolean completed;
-		
-		private Vector3f p2to3(Tuple2f p)
-		{
-			return new Vector3f(p.x, p.y, 0);
-		}
 		
 		public Point2f getBarycentricCoordinates(Point2f p, ArrayList<Point2f> vertices)
 		{
@@ -69,7 +62,7 @@ public class DelaunayTriangulation {
 		public boolean isInside(Point2f p, ArrayList<Point2f> vertices)
 		{
 			Point2f barycentricCoords = getBarycentricCoordinates(p, vertices);
-			return (barycentricCoords.x >= 0) && (barycentricCoords.y >= 0) && (barycentricCoords.x + barycentricCoords.y < 1);
+			return (barycentricCoords.x >= -EPSILON) && (barycentricCoords.y >= -EPSILON) && (barycentricCoords.x + barycentricCoords.y < 1 + EPSILON);
 		}
 	}
 
@@ -287,7 +280,10 @@ public class DelaunayTriangulation {
 	{
 		for(DelaunayTriangulation.Triangle currentT: triangles)
 		{
-			if(currentT.isInside(p, positions)) return currentT;
+			if(currentT.isInside(p, positions))
+			{
+				return currentT;
+			}
 		}
 		return null;
 	}
