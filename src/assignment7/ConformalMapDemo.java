@@ -4,9 +4,11 @@ import glWrapper.GLHalfEdgeStructure;
 import glWrapper.GLWireframeMesh;
 
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.vecmath.Point2f;
+import javax.vecmath.Point3f;
 
 import meshes.HalfEdgeStructure;
 import meshes.Vertex;
@@ -16,47 +18,119 @@ import meshes.reader.ObjWriter;
 import openGL.MyDisplay;
 import openGL.gl.GLDisplayable.Semantic;
 import algorithms.ConformalMapper;
+import algorithms.DelaunayTriangulation;
+import algorithms.DelaunayTriangulation.Triangle;
 
 public class ConformalMapDemo {
+
+	private static HalfEdgeStructure hs;
+	private static HashMap<Integer, Point2f> labels;
+	private static HashMap<Integer, Point2f> allLabels;
+	private static WireframeMesh delaunayWf;
 
 	/**
 	 * @param args
 	 * @throws Exception 
 	 */
-	public static void main(String[] args) throws Exception {
-//		WireframeMesh wf = ObjReader.read("./objs/head.obj", true);
-		String name = "stefan";
+	public static void main(String[] args) throws Exception
+	{
+		String refName = "aaron";
+		String[] names = {"cedric", "gian", "michele", "stefan", "tiziano"};
 		System.out.println("Reading obj...");
+		
+		
+		ArrayList<Point2f> refTexcoords = compute(refName);
+		ArrayList<Point2f> refPos = getLabelCoords(refTexcoords);
+		display(refTexcoords);
+		
+		ArrayList<Point2f> texcoords = compute(names[0]);
+		delaunayWf = morph(texcoords, refPos, getLabelCoords(texcoords));
+		
+		display(texcoords);
+		
+	}
+	
+	public static ArrayList<Point2f> getLabelCoords(ArrayList<Point2f> texcoords)
+	{
+		ArrayList<Point2f> pos = new ArrayList<>();
+		pos.ensureCapacity(allLabels.size());
+		for(int i: allLabels.keySet())
+		{
+			pos.add(texcoords.get(i));
+		}
+		return pos;
+	}
+	
+	public static WireframeMesh morph(ArrayList<Point2f> texcoords, ArrayList<Point2f> refpos, ArrayList<Point2f> featurepos)
+	{
+		refpos.add(new Point2f(0, 0));
+		refpos.add(new Point2f(0, 1));
+		refpos.add(new Point2f(1, 0));
+		refpos.add(new Point2f(1, 1));
+
+		featurepos.add(new Point2f(0, 0));
+		featurepos.add(new Point2f(0, 1));
+		featurepos.add(new Point2f(1, 0));
+		featurepos.add(new Point2f(1, 1));
+		
+		Triangle[] delaunay = DelaunayTriangulation.triangulate(refpos);
+		WireframeMesh wf = new WireframeMesh();
+		for(Triangle t: delaunay)
+		{
+			wf.faces.add(new int[]{t.p1, t.p2, t.p3});
+		}
+		for(Point2f p: refpos)
+		{
+			wf.vertices.add(new Point3f(p.x, p.y, 0));
+		}
+		
+		for(Point2f p: texcoords)
+		{
+			Triangle t = DelaunayTriangulation.getTriangle(p, delaunay, featurepos);
+			assert(t != null);
+			Point2f barycentricCoordinates = t.getBarycentricCoordinates(p, featurepos);
+			Point2f newPos1 = refpos.get(t.p1);
+			Point2f newPos2 = refpos.get(t.p2);
+			Point2f newPos3 = refpos.get(t.p3);
+			newPos1.scale(1 - barycentricCoordinates.x - barycentricCoordinates.y);
+			newPos2.scale(barycentricCoordinates.x);
+			newPos3.scale(barycentricCoordinates.y);
+			Point2f newPos = new Point2f();
+			newPos.add(newPos1);
+			newPos.add(newPos2);
+			newPos.add(newPos3);
+			p.set(newPos);
+		}
+		
+		return wf;
+	}
+	
+	public static ArrayList<Point2f> compute(String name) throws Exception
+	{
 		WireframeMesh wf = ObjReader.read("./objs/faces/" + name + "_disk_remeshed.obj", true);
-//		WireframeMesh wf2 = ObjReader.read("./objs/faces/stefan_disk_remeshed.obj", true);
-//		WireframeMesh wf = new Bock(1, 1, 1).result;
-		System.out.println("Creating half edge structure");
-		
-		HalfEdgeStructure hs = new HalfEdgeStructure();
+		hs = new HalfEdgeStructure();
 		hs.init(wf);
-		
 		System.out.println("Reading labels");
 		LabelReader l = new LabelReader("labels/faces/" + name + "_disk_remeshed.lab", "labels/faces/faces.txc");
-		HashMap<Integer, Point2f> labels = l.read();
+		labels = l.read();
+		LabelReader lAll = new LabelReader("labels/faces/" + name + "_disk_remeshed.lab", "labels/faces/faces_all_constraints.txc");
+		allLabels = lAll.read();
 		
 //		LabelReader boundaryLabels = new LabelReader("out/" + name + "_boundary.lbl", "out/" + name + "_boundary.txc");
 //		labels.putAll(boundaryLabels.read());
 		
 		ConformalMapper mapper = new ConformalMapper(hs, labels);
 		mapper.compute();
-		System.out.println("Done, writing OBJ");
+		System.out.println("Done, writing OBJ");	
 		
-		GLConstraints glc = new GLConstraints(hs, labels);
-		glc.addElement2D(mapper.get(), Semantic.POSITION, "pos");
-		
-		System.out.println("Creating conformal-ish map");
-		
+		FileWriter autoConstrWriter = new FileWriter("out/" + name + "_auto_constr.txc");
 		for(String label: l.lbl.keySet())
 		{
 			Point2f labelCoord = mapper.get().get(l.lbl.get(label));
 //			System.out.println("Output labels:");
-			System.out.println("" + labelCoord.x + " " + labelCoord.y + " " + label);
+			autoConstrWriter.write("" + labelCoord.x + " " + labelCoord.y + " " + label + "\n");
 		}
+		autoConstrWriter.close();
 		
 		FileWriter boundaryConstraint = new FileWriter("out/" + name + "_boundary.txc");
 		FileWriter boundaryConstraintLabel = new FileWriter("out/" + name + "_boundary.lbl");
@@ -76,30 +150,39 @@ public class ConformalMapDemo {
 		writer.writeTexcoord(mapper.get());
 		writer.write(hs);
 		writer.close();
+
+		return mapper.get();
+	}
+	
+	public static void display(ArrayList<Point2f> texcoords)
+	{
+		MyDisplay d = new MyDisplay();
+
+		GLConstraints glc = new GLConstraints(hs, getLabelCoords(texcoords));
+		glc.addElement2D(texcoords, Semantic.POSITION, "pos");
+		
+		System.out.println("Creating conformal-ish map");
+		
 		
 		GLHalfEdgeStructure glhs = new GLHalfEdgeStructure(hs);
-		glhs.addElement2D(mapper.get(), Semantic.POSITION, "pos");
+		glhs.addElement2D(texcoords, Semantic.POSITION, "pos");
 		glhs.configurePreferredShader("shaders/wiremesh.vert", "shaders/wiremesh.frag", "shaders/wiremesh.geom");
 		
 		GLHalfEdgeStructure glhs2 = new GLHalfEdgeStructure(hs);
 		glhs2.configurePreferredShader("shaders/wiremesh.vert", "shaders/wiremesh.frag", "shaders/wiremesh.geom");
 		
-//		GLWireframeMesh glwf2 = new GLWireframeMesh(wf2);
-//		glwf2.configurePreferredShader("shaders/wiremesh.vert", "shaders/wiremesh.frag", "shaders/wiremesh.geom");
+		if(delaunayWf != null)
+		{
+			GLWireframeMesh glwf2 = new GLWireframeMesh(delaunayWf);
+			glwf2.configurePreferredShader("shaders/wiremesh.vert", "shaders/wiremesh.frag", "shaders/wiremesh.geom");
+			d.addToDisplay(glwf2);
+		}
 		
 		
-		MyDisplay d = new MyDisplay();
 		
 		d.addToDisplay(glhs);
 		d.addToDisplay(glhs2);
-//		d.addToDisplay(glwf2);
 		d.addToDisplay(glc);
-		
-		
-//		GLUpdatableHEStructure glHE = new GLUpdatableHEStructure(hs);
-//		MyPickingDisplay disp = new MyPickingDisplay();
-//		DeformationPickingProcessor pr = new DeformationPickingProcessor(hs, glHE);
-//		disp.addAsPickable(glHE, pr);
 		
 	}
 

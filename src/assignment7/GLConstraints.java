@@ -13,19 +13,19 @@ import openGL.objects.Transformation;
 
 public class GLConstraints extends GLDisplayable {
 
-	public GLConstraints(HalfEdgeStructure hs, HashMap<Integer, Point2f> labels) {
+	public GLConstraints(HalfEdgeStructure hs, ArrayList<Point2f> labels) {
 		super(labels.size());
 		
 		
 		int[] ind = new int[labels.size()];
-		float[] pos = new float[labels.size()*3];
+//		float[] pos = new float[labels.size()*3];
 		
-		int idx=0;
-		for(Integer i : labels.keySet()){
-			pos[idx++] = hs.getVertices().get(i).getPos().x;
-			pos[idx++] = hs.getVertices().get(i).getPos().y;
-			pos[idx++] = hs.getVertices().get(i).getPos().z;
-		}
+//		int idx=0;
+//		for(Integer i : labels.keySet()){
+//			pos[idx++] = hs.getVertices().get(i).getPos().x;
+//			pos[idx++] = hs.getVertices().get(i).getPos().y;
+//			pos[idx++] = hs.getVertices().get(i).getPos().z;
+//		}
 		
 		for(int i = 0; i < ind.length; i++){
 			ind[i] = i;
@@ -33,7 +33,7 @@ public class GLConstraints extends GLDisplayable {
 		
 		this.addIndices(ind);
 //		this.addElement(pos, Semantic.POSITION, 3);
-		this.addElement2D(new ArrayList<>(labels.values()), Semantic.POSITION, "texcoords");
+		this.addElement2D(labels, Semantic.POSITION, "texcoords");
 	}
 
 	@Override
