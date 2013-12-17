@@ -1,6 +1,7 @@
 package assignment7;
 
 import glWrapper.GLHalfEdgeStructure;
+import glWrapper.GLPointCloud;
 import glWrapper.GLWireframeMesh;
 
 import java.io.FileWriter;
@@ -11,6 +12,7 @@ import javax.vecmath.Point2f;
 import javax.vecmath.Point3f;
 
 import meshes.HalfEdgeStructure;
+import meshes.PointCloud;
 import meshes.Vertex;
 import meshes.WireframeMesh;
 import meshes.reader.ObjReader;
@@ -26,6 +28,7 @@ public class ConformalMapDemo {
 	private static HalfEdgeStructure hs;
 	private static LinkedHashMap<Integer, Point2f> labels;
 	private static LinkedHashMap<Integer, Point2f> allLabels;
+	private static ArrayList<Point2f> unmorphedTexCoords;
 	private static WireframeMesh delaunayWf;
 
 	/**
@@ -40,10 +43,12 @@ public class ConformalMapDemo {
 		
 		
 		ArrayList<Point2f> refTexcoords = compute(refName);
+		unmorphedTexCoords = new ArrayList<Point2f>(refTexcoords);
 		ArrayList<Point2f> refPos = getLabelCoords(refTexcoords);
 		display(refTexcoords);
 		
-		ArrayList<Point2f> texcoords = compute(names[0]);
+		ArrayList<Point2f> texcoords = compute(names[2]);
+		unmorphedTexCoords = new ArrayList<Point2f>(texcoords);
 		delaunayWf = morph(texcoords, refPos, getLabelCoords(texcoords));
 		
 		display(texcoords);
@@ -83,7 +88,16 @@ public class ConformalMapDemo {
 		{
 			wf.vertices.add(new Point3f(p.x, p.y, 0));
 		}
+		GLWireframeMesh glwf = new GLWireframeMesh(wf);
+		glwf.configurePreferredShader("shaders/wiremesh.vert", "shaders/wiremesh.frag", "shaders/wiremesh.geom");
+		PointCloud pc = new PointCloud();
+		pc.points = new ArrayList<Point3f>(wf.vertices);
+		GLPointCloud glpc = new GLPointCloud(pc);
+		MyDisplay d = new MyDisplay();
+		d.addToDisplay(glwf);
+		d.addToDisplay(glpc);
 		
+		int i = 0;
 		for(Point2f p: texcoords)
 		{
 			Triangle t = DelaunayTriangulation.getTriangle(p, delaunay, featurepos);
@@ -99,7 +113,7 @@ public class ConformalMapDemo {
 			newPos.add(newPos1);
 			newPos.add(newPos2);
 			newPos.add(newPos3);
-			p.set(newPos);
+			texcoords.set(i++, newPos);
 		}
 		
 		return wf;
@@ -158,7 +172,7 @@ public class ConformalMapDemo {
 	{
 		MyDisplay d = new MyDisplay();
 
-		GLConstraints glc = new GLConstraints(hs, getLabelCoords(texcoords));
+		GLConstraints glc = new GLConstraints(hs, getLabelCoords(unmorphedTexCoords));
 //		glc.addElement2D(texcoords, Semantic.POSITION, "pos");
 		
 		System.out.println("Creating conformal-ish map");
