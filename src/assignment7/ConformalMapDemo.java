@@ -5,6 +5,7 @@ import glWrapper.GLPointCloud;
 import glWrapper.GLWireframeMesh;
 
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -85,15 +86,24 @@ public class ConformalMapDemo {
 		featurepos.add(new Point2f(1, 0));
 		featurepos.add(new Point2f(1, 1));
 		
-		Triangle[] delaunay = DelaunayTriangulation.triangulate(featurepos);
-		WireframeMesh wf = new WireframeMesh();
-		for(Triangle t: delaunay)
-		{
-			wf.faces.add(new int[]{t.p1, t.p2, t.p3});
+//		Triangle[] delaunay = DelaunayTriangulation.triangulate(featurepos);
+		WireframeMesh wf = null;
+		try {
+			wf = ObjReader.read("objs/faces/aaron_features_delaunay.obj", false);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
 		}
+		Triangle[] delaunay = new Triangle[wf.faces.size()];
+		int in = 0;
+		for(int[] face: wf.faces)
+		{
+			delaunay[in++] = new Triangle(face[0], face[1], face[2]);
+		}
+		in = 0;
 		for(Point2f p: featurepos)
 		{
-			wf.vertices.add(new Point3f(p.x, p.y, 0));
+			wf.vertices.set(in++, new Point3f(p.x, p.y, 0));
 		}
 		GLWireframeMesh glwf = new GLWireframeMesh(wf);
 		glwf.configurePreferredShader("shaders/wiremesh.vert", "shaders/wiremesh.frag", "shaders/wiremesh.geom");
