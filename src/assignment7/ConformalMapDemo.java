@@ -72,19 +72,26 @@ public class ConformalMapDemo {
 		refpos.add(new Point2f(0, 1));
 		refpos.add(new Point2f(1, 0));
 		refpos.add(new Point2f(1, 1));
+		System.out.println("[");
+		for(Point2f p: featurepos)
+		{
+			System.out.println("" + p.x + "," + p.y + ";");
+			
+		}
+		System.out.println("]");
 
 		featurepos.add(new Point2f(0, 0));
 		featurepos.add(new Point2f(0, 1));
 		featurepos.add(new Point2f(1, 0));
 		featurepos.add(new Point2f(1, 1));
 		
-		Triangle[] delaunay = DelaunayTriangulation.triangulate(refpos);
+		Triangle[] delaunay = DelaunayTriangulation.triangulate(featurepos);
 		WireframeMesh wf = new WireframeMesh();
 		for(Triangle t: delaunay)
 		{
 			wf.faces.add(new int[]{t.p1, t.p2, t.p3});
 		}
-		for(Point2f p: refpos)
+		for(Point2f p: featurepos)
 		{
 			wf.vertices.add(new Point3f(p.x, p.y, 0));
 		}
@@ -107,8 +114,8 @@ public class ConformalMapDemo {
 			Point2f newPos2 = refpos.get(t.p2);
 			Point2f newPos3 = refpos.get(t.p3);
 			newPos1.scale(1 - barycentricCoordinates.x - barycentricCoordinates.y);
-			newPos2.scale(barycentricCoordinates.x);
-			newPos3.scale(barycentricCoordinates.y);
+			newPos2.scale(barycentricCoordinates.y);
+			newPos3.scale(barycentricCoordinates.x);
 			Point2f newPos = new Point2f();
 			newPos.add(newPos1);
 			newPos.add(newPos2);
