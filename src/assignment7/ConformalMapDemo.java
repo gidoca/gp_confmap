@@ -4,7 +4,6 @@ import glWrapper.GLHalfEdgeStructure;
 import glWrapper.GLPointCloud;
 import glWrapper.GLWireframeMesh;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -14,7 +13,6 @@ import javax.vecmath.Point3f;
 
 import meshes.HalfEdgeStructure;
 import meshes.PointCloud;
-import meshes.Vertex;
 import meshes.WireframeMesh;
 import meshes.reader.ObjReader;
 import meshes.reader.ObjWriter;
@@ -28,9 +26,11 @@ public class ConformalMapDemo {
 
 	private static HalfEdgeStructure hs;
 	private static LinkedHashMap<Integer, Point2f> labels;
-	private static LinkedHashMap<Integer, Point2f> allLabels;
+	private static LinkedHashMap<String, Integer> allLabels;
+	private static LinkedHashMap<String, Integer> allLabelsRef;
 	private static ArrayList<Point2f> unmorphedTexCoords;
 	private static WireframeMesh delaunayWf;
+	private static MyDisplay d;
 
 	/**
 	 * @param args
@@ -39,20 +39,39 @@ public class ConformalMapDemo {
 	public static void main(String[] args) throws Exception
 	{
 		String refName = "aaron";
-		String[] names = {"cedric", "gian", "michele", "stefan", "tiziano"};
+		String[] names = {"cedric", "gian", "michael", "michele", "stefan", "tiziano"};
 		System.out.println("Reading obj...");
 		
+		d = new MyDisplay();
+		/*for(String name: names)
+		{
+			WireframeMesh m = ObjReader.read("./objs/faces/aligned/" + name + "_disk_aligned.obj", false);
+			GLWireframeMesh glwf = new GLWireframeMesh(m);
+			glwf.setName(name);
+			glwf.configurePreferredShader("shaders/trimesh_flatColor3f.vert", "shaders/trimesh_flatColor3f.frag", "shaders/trimesh_flatColor3f.geom");
+			d.addToDisplay(glwf);
+		}
+		WireframeMesh m = ObjReader.read("./objs/faces/aligned/" + refName + "_disk_aligned.obj", false);
+		GLWireframeMesh glwf = new GLWireframeMesh(m);
+		glwf.setName(refName);
+		glwf.configurePreferredShader("shaders/trimesh_flatColor3f.vert", "shaders/trimesh_flatColor3f.frag", "shaders/trimesh_flatColor3f.geom");
+		d.addToDisplay(glwf);*/
 		
 		ArrayList<Point2f> refTexcoords = compute(refName);
 		unmorphedTexCoords = new ArrayList<Point2f>(refTexcoords);
 		ArrayList<Point2f> refPos = getLabelCoords(refTexcoords);
+		writeObj(refName, refTexcoords);
 		display(refTexcoords);
 		
-		ArrayList<Point2f> texcoords = compute(names[2]);
-		unmorphedTexCoords = new ArrayList<Point2f>(texcoords);
-		delaunayWf = morph(texcoords, refPos, getLabelCoords(texcoords));
+		for(String name: names)
+		{
+			ArrayList<Point2f> texcoords = compute(name);
+			unmorphedTexCoords = new ArrayList<Point2f>(texcoords);
+			delaunayWf = morph(texcoords, refPos, getLabelCoords(texcoords));
+			writeObj(name, texcoords);
+			display(texcoords);
+		}
 		
-		display(texcoords);
 		
 	}
 	
@@ -60,21 +79,23 @@ public class ConformalMapDemo {
 	{
 		ArrayList<Point2f> pos = new ArrayList<>();
 		pos.ensureCapacity(allLabels.size());
-		for(int i: allLabels.keySet())
+		for(String label: allLabelsRef.keySet())
 		{
-			pos.add(texcoords.get(i));
+			//Need to get the current labels in the order of allLabelsRef
+			pos.add(new Point2f(texcoords.get(allLabels.get(label))));
 		}
 		return pos;
 	}
 	
 	public static WireframeMesh morph(ArrayList<Point2f> texcoords, ArrayList<Point2f> refpos, ArrayList<Point2f> featurepos)
 	{
-		refpos.add(new Point2f(0, 0));
-		refpos.add(new Point2f(0, 1));
-		refpos.add(new Point2f(1, 0));
-		refpos.add(new Point2f(1, 1));
+		ArrayList<Point2f> refposM = new ArrayList<Point2f>(refpos);
+		refposM.add(new Point2f(0, 0));
+		refposM.add(new Point2f(0, 1));
+		refposM.add(new Point2f(1, 0));
+		refposM.add(new Point2f(1, 1));
 		System.out.println("[");
-		for(Point2f p: featurepos)
+		for(Point2f p: refposM)
 		{
 			System.out.println("" + p.x + "," + p.y + ";");
 			
@@ -105,14 +126,14 @@ public class ConformalMapDemo {
 		{
 			wf.vertices.set(in++, new Point3f(p.x, p.y, 0));
 		}
-		GLWireframeMesh glwf = new GLWireframeMesh(wf);
-		glwf.configurePreferredShader("shaders/wiremesh.vert", "shaders/wiremesh.frag", "shaders/wiremesh.geom");
-		PointCloud pc = new PointCloud();
-		pc.points = new ArrayList<Point3f>(wf.vertices);
-		GLPointCloud glpc = new GLPointCloud(pc);
-		MyDisplay d = new MyDisplay();
-		d.addToDisplay(glwf);
-		d.addToDisplay(glpc);
+//		GLWireframeMesh glwf = new GLWireframeMesh(wf);
+//		glwf.configurePreferredShader("shaders/wiremesh.vert", "shaders/wiremesh.frag", "shaders/wiremesh.geom");
+//		PointCloud pc = new PointCloud();
+//		pc.points = new ArrayList<Point3f>(wf.vertices);
+//		GLPointCloud glpc = new GLPointCloud(pc);
+//		MyDisplay d = new MyDisplay();
+//		d.addToDisplay(glwf);
+//		d.addToDisplay(glpc);
 		
 		int i = 0;
 		for(Point2f p: texcoords)
@@ -120,9 +141,9 @@ public class ConformalMapDemo {
 			Triangle t = DelaunayTriangulation.getTriangle(p, delaunay, featurepos);
 			assert(t != null);
 			Point2f barycentricCoordinates = t.getBarycentricCoordinates(p, featurepos);
-			Point2f newPos1 = refpos.get(t.p1);
-			Point2f newPos2 = refpos.get(t.p2);
-			Point2f newPos3 = refpos.get(t.p3);
+			Point2f newPos1 = new Point2f(refposM.get(t.p1));
+			Point2f newPos2 = new Point2f(refposM.get(t.p2));
+			Point2f newPos3 = new Point2f(refposM.get(t.p3));
 			newPos1.scale(1 - barycentricCoordinates.x - barycentricCoordinates.y);
 			newPos2.scale(barycentricCoordinates.y);
 			newPos3.scale(barycentricCoordinates.x);
@@ -138,74 +159,58 @@ public class ConformalMapDemo {
 	
 	public static ArrayList<Point2f> compute(String name) throws Exception
 	{
-		WireframeMesh wf = ObjReader.read("./objs/faces/" + name + "_disk_remeshed.obj", true);
+		WireframeMesh wf = ObjReader.read("./objs/faces/aligned/" + name + "_disk_aligned.obj", false);
 		hs = new HalfEdgeStructure();
 		hs.init(wf);
+//		GLWireframeMesh glwf = new GLWireframeMesh(wf);
+//		glwf.configurePreferredShader("shaders/wiremesh.vert", "shaders/wiremesh.frag", "shaders/wiremesh.geom");
+		
 		System.out.println("Reading labels");
 		LabelReader l = new LabelReader("labels/faces/" + name + "_disk_remeshed.lab", "labels/faces/faces.txc");
 		labels = l.read();
-		LabelReader lAll = new LabelReader("labels/faces/" + name + "_disk_remeshed.lab", "labels/faces/faces_all_constraints.txc");
-		allLabels = lAll.read();
 		
 //		LabelReader boundaryLabels = new LabelReader("out/" + name + "_boundary.lbl", "out/" + name + "_boundary.txc");
 //		labels.putAll(boundaryLabels.read());
 		
 		ConformalMapper mapper = new ConformalMapper(hs, labels);
 		mapper.compute();
-		System.out.println("Done, writing OBJ");	
+		System.out.println("Done, writing OBJ");
 		
-		FileWriter autoConstrWriter = new FileWriter("out/" + name + "_auto_constr.txc");
-		for(String label: l.lbl.keySet())
-		{
-			Point2f labelCoord = mapper.get().get(l.lbl.get(label));
-//			System.out.println("Output labels:");
-			autoConstrWriter.write("" + labelCoord.x + " " + labelCoord.y + " " + label + "\n");
-		}
-		autoConstrWriter.close();
+		LabelReader lAll = new LabelReader("labels/faces/" + name + "_disk_remeshed.lab", null);
+		allLabels = lAll.readIndices();
+		if(allLabelsRef == null) allLabelsRef = allLabels;
 		
-		FileWriter boundaryConstraint = new FileWriter("out/" + name + "_boundary.txc");
-		FileWriter boundaryConstraintLabel = new FileWriter("out/" + name + "_boundary.lbl");
-		for(Vertex v: hs.getVertices())
-		{
-			if(v.isOnBoundary())
-			{
-				Point2f texcoord = mapper.get().get(v.index);
-				boundaryConstraint.write(texcoord.x + " " + texcoord.y + " l" + v.index + "\n");
-				boundaryConstraintLabel.write(v.index + " l" + v.index + "\n");
-			}
-		}
-		boundaryConstraint.close();
-		boundaryConstraintLabel.close();
-		
+		return mapper.get();
+	}
+	
+	public static void writeObj(String name, ArrayList<Point2f> texcoords) throws Exception
+	{
 		ObjWriter writer = new ObjWriter(name + "_tex.obj");
-		writer.writeTexcoord(mapper.get());
+		writer.writeTexcoord(texcoords);
 		writer.write(hs);
 		writer.close();
-
-		return mapper.get();
 	}
 	
 	public static void display(ArrayList<Point2f> texcoords)
 	{
-		MyDisplay d = new MyDisplay();
-
-		GLConstraints glc = new GLConstraints(hs, getLabelCoords(unmorphedTexCoords));
+//		MyDisplay d = new MyDisplay();
+		GLConstraints glc = new GLConstraints(hs, getLabelCoords(texcoords));
 //		glc.addElement2D(texcoords, Semantic.POSITION, "pos");
-		
-		System.out.println("Creating conformal-ish map");
-		
 		
 		GLHalfEdgeStructure glhs = new GLHalfEdgeStructure(hs);
 		glhs.addElement2D(texcoords, Semantic.POSITION, "pos");
 		glhs.configurePreferredShader("shaders/wiremesh.vert", "shaders/wiremesh.frag", "shaders/wiremesh.geom");
+		glhs.setName("texture map");
 		
 		GLHalfEdgeStructure glhs2 = new GLHalfEdgeStructure(hs);
 		glhs2.configurePreferredShader("shaders/wiremesh.vert", "shaders/wiremesh.frag", "shaders/wiremesh.geom");
+		glhs2.setName("mesh");
 		
 		if(delaunayWf != null)
 		{
 			GLWireframeMesh glwf2 = new GLWireframeMesh(delaunayWf);
 			glwf2.configurePreferredShader("shaders/wiremesh.vert", "shaders/wiremesh.frag", "shaders/wiremesh.geom");
+			glwf2.setName("delaunay triangulation");
 			d.addToDisplay(glwf2);
 		}
 		
